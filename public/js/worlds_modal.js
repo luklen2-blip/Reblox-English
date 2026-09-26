@@ -15,27 +15,27 @@ class WorldsModalManager {
     this.modal = this.modal || document.getElementById('worlds-modal');
     if (!this.modal) return;
 
-    // Atualiza status do Mundo 2 se VIP
+    // Atualiza status do Mundo 2 e Mundo 3 se VIP
     const isVIP = localStorage.getItem('roblox_english_obby_unlocked') === 'true';
-    const tag = document.getElementById('world-2-status-tag');
-    if (tag) {
-      tag.textContent = isVIP ? 'LIBERADO 👑' : 'VIP VITALÍCIO 👑';
-      tag.className = isVIP ? 'world-card-tag world-tag-free' : 'world-card-tag world-tag-vip';
+    const tag2 = document.getElementById('world-2-status-tag');
+    if (tag2) {
+      tag2.textContent = isVIP ? 'LIBERADO 👑' : 'VIP VITALÍCIO 👑';
+      tag2.className = isVIP ? 'world-card-tag world-tag-free' : 'world-card-tag world-tag-vip';
+    }
+    const tag3 = document.getElementById('world-3-status-tag');
+    if (tag3) {
+      tag3.textContent = isVIP ? 'LIBERADO 👑' : 'VIP VITALÍCIO 👑';
+      tag3.className = isVIP ? 'world-card-tag world-tag-free' : 'world-card-tag world-tag-vip';
     }
 
     // Destaca qual mundo está ativo
     const currentId = (window.gameApp && window.gameApp.currentWorldId) || 1;
     const card1 = document.getElementById('select-world-1-card');
     const card2 = document.getElementById('select-world-2-card');
-    if (card1 && card2) {
-      if (currentId === 1) {
-        card1.classList.add('active-world');
-        card2.classList.remove('active-world');
-      } else {
-        card2.classList.add('active-world');
-        card1.classList.remove('active-world');
-      }
-    }
+    const card3 = document.getElementById('select-world-3-card');
+    if (card1) card1.classList.toggle('active-world', currentId === 1);
+    if (card2) card2.classList.toggle('active-world', currentId === 2);
+    if (card3) card3.classList.toggle('active-world', currentId === 3);
 
     this.modal.classList.add('active');
     this.modal.style.display = 'flex';
@@ -104,7 +104,15 @@ class WorldsModalManager {
         return;
       }
 
-      // 5. Fechar ao clicar no fundo escuro
+      // 5. Clicar em World 3 (Kitchen)
+      if (e.target.closest('#btn-play-world-3') || e.target.closest('#select-world-3-card')) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.selectWorld(3);
+        return;
+      }
+
+      // 6. Fechar ao clicar no fundo escuro
       const modal = document.getElementById('worlds-modal');
       if (modal && e.target === modal) {
         this.close();

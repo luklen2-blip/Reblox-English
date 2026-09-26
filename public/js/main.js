@@ -75,15 +75,52 @@ class GameApp {
       window.gameStateManager.setWorld(worldId);
     }
 
-    if (worldId === 2) {
-      const isUnlocked = (window.userGameState && window.userGameState.isProUnlocked) ||
-                         localStorage.getItem('roblox_english_obby_unlocked') === 'true';
-
-      // Limpa Mundo 1
+    if (worldId === 3) {
+      // Limpa mundos anteriores
       if (this.world) { this.world.dispose(); this.world = null; }
       if (this.challenges) { this.challenges.dispose(); this.challenges = null; }
       if (this.portal) { this.portal.dispose(); this.portal = null; }
       if (this.world2) { this.world2.dispose(); this.world2 = null; }
+      if (this.world3) { this.world3.dispose(); this.world3 = null; }
+
+      // Constrói Mundo 3: Kitchen & Fruits
+      this.currentWorldId = 3;
+      this.world3 = new World3KitchenManager(this.scene, this.player);
+      window.world3Manager = this.world3;
+
+      // Reseta posição do jogador para o início da Cozinha
+      this.player.position.set(0, 3.5, 0);
+      this.player.setCheckpoint(new THREE.Vector3(0, 3.5, 0));
+      this.player.velocity.set(0, 0, 0);
+      this.player.mesh.position.copy(this.player.position);
+      this.player.isFrozen = false;
+      this.sectionAnnounced = {};
+
+      // Atualiza badge de mundo ativo no HUD
+      const worldBadge = document.getElementById('current-world-badge');
+      if (worldBadge) {
+        worldBadge.textContent = '🍳 MUNDO 3: KITCHEN';
+        worldBadge.className = 'current-world-badge kitchen-badge';
+      }
+
+      // Atualiza HUD para Kitchen
+      this.setWordHighlight('APPLE! 🍎', 'Explore a Cozinha e encontre a Maçã!');
+      const counterEl = document.getElementById('collectibles-counter');
+      if (counterEl) counterEl.textContent = '0/3';
+
+      if (window.audioManager) {
+        window.audioManager.speak("Welcome to Kitchen and Fruits! Look for the Apple!");
+      }
+    } else if (worldId === 2) {
+      const isUnlocked = (window.userGameState && window.userGameState.isProUnlocked) ||
+                         localStorage.getItem('roblox_english_obby_unlocked') === 'true';
+
+      // Limpa outros mundos
+      if (this.world) { this.world.dispose(); this.world = null; }
+      if (this.challenges) { this.challenges.dispose(); this.challenges = null; }
+      if (this.portal) { this.portal.dispose(); this.portal = null; }
+      if (this.world2) { this.world2.dispose(); this.world2 = null; }
+      if (this.world3) { this.world3.dispose(); this.world3 = null; }
 
       // Constrói Mundo 2: Animal Safari
       this.currentWorldId = 2;
@@ -115,6 +152,7 @@ class GameApp {
       }
     } else {
       // Retorna para Mundo 1: Rainbow Obby
+      if (this.world3) { this.world3.dispose(); this.world3 = null; }
       if (this.world2) { this.world2.dispose(); this.world2 = null; }
       if (this.world) { this.world.dispose(); this.world = null; }
       if (this.challenges) { this.challenges.dispose(); this.challenges = null; }
@@ -451,6 +489,37 @@ class GameApp {
         }
         if (window.gameStateManager) window.gameStateManager.addMasteredWord('Monkey');
       }
+    } else if (this.currentWorldId === 3) {
+      // Mundo 3 - Kitchen & Fruits Gatilhos
+      // Maçã
+      if (z <= -30 && z > -65 && !this.sectionAnnounced['kitchen_apple']) {
+        this.sectionAnnounced['kitchen_apple'] = true;
+        this.setWordHighlight('APPLE! 🍎', 'Aperte SPEAK e diga: "APPLE"!');
+        if (window.audioManager) {
+          window.audioManager.speak('Look at the red Apple! Delicious Apple! Say Apple!');
+        }
+        if (window.gameStateManager) window.gameStateManager.addMasteredWord('Apple');
+      }
+
+      // Leite
+      if (z <= -65 && z > -100 && !this.sectionAnnounced['kitchen_milk']) {
+        this.sectionAnnounced['kitchen_milk'] = true;
+        this.setWordHighlight('MILK! 🥛', 'Aperte SPEAK e diga: "MILK"!');
+        if (window.audioManager) {
+          window.audioManager.speak('Fresh cold Milk! Say Milk!');
+        }
+        if (window.gameStateManager) window.gameStateManager.addMasteredWord('Milk');
+      }
+
+      // Pão
+      if (z <= -100 && !this.sectionAnnounced['kitchen_bread']) {
+        this.sectionAnnounced['kitchen_bread'] = true;
+        this.setWordHighlight('BREAD! 🍞', 'Aperte SPEAK e diga: "BREAD"!');
+        if (window.audioManager) {
+          window.audioManager.speak('Warm toasted Bread! Say Bread!');
+        }
+        if (window.gameStateManager) window.gameStateManager.addMasteredWord('Bread');
+      }
     }
   }
 
@@ -465,6 +534,8 @@ class GameApp {
       currentPlatforms = this.world.platforms;
     } else if (this.currentWorldId === 2 && this.world2) {
       currentPlatforms = this.world2.platforms;
+    } else if (this.currentWorldId === 3 && this.world3) {
+      currentPlatforms = this.world3.platforms;
     }
 
     // 1. Atualiza o jogador com colisões do mundo ativo
@@ -493,6 +564,8 @@ class GameApp {
       if (this.portal) this.portal.update(delta);
     } else if (this.currentWorldId === 2) {
       if (this.world2) this.world2.update(delta);
+    } else if (this.currentWorldId === 3) {
+      if (this.world3) this.world3.update(delta);
     }
 
     this.checkSectionTriggers();

@@ -577,7 +577,9 @@ class World2SafariManager {
 
     if (window.gameStateManager) {
       window.gameStateManager.addStar(1);
-      window.gameStateManager.addMasteredWord('Banana');
+      window.gameStateManager.recordWordAttempt('Banana', true);
+      window.gameStateManager.addCoins(5);
+      window.gameStateManager.addXp(15);
     }
 
     if (window.audioManager) {
@@ -587,7 +589,7 @@ class World2SafariManager {
 
     if (window.gameApp && typeof window.gameApp.setWordHighlight === 'function') {
       window.gameApp.setWordHighlight(
-        `BANANA ${item.numberWord}! 🍌`,
+        `BANANA ${item.numberWord}! 🍌 (+5 🪙 +15 XP)`,
         `Banana ${this.collectedCount} de 3 coletada!`
       );
     }
@@ -604,10 +606,14 @@ class World2SafariManager {
     this.safariVictoryTriggered = true;
 
     if (window.gameStateManager) {
-      window.gameStateManager.addMasteredWord('Lion');
-      window.gameStateManager.addMasteredWord('Elephant');
-      window.gameStateManager.addMasteredWord('Monkey');
-      window.gameStateManager.addMasteredWord('Banana');
+      window.gameStateManager.recordWordAttempt('Lion', true);
+      window.gameStateManager.recordWordAttempt('Elephant', true);
+      window.gameStateManager.recordWordAttempt('Monkey', true);
+      window.gameStateManager.recordWordAttempt('Banana', true);
+      window.gameStateManager.addCoins(50);
+      window.gameStateManager.addXp(150);
+      window.gameStateManager.unlockBadge('animal_master');
+      window.gameStateManager.unlockBadge('world2_complete');
     }
 
     if (window.audioManager) {

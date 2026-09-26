@@ -299,6 +299,95 @@ async function runTests() {
     assert(indexRes.data.includes('modal-ethical-note'), 'Modal de conversão no HTML deve conter aviso ético aos pais');
     assert(indexRes.data.includes('apple-mobile-web-app-capable'), 'HTML deve conter meta tag para PWA e visualização móvel');
 
+    // ================= TESTE 12: FASE 2 GAMIFICAÇÃO, NÍVEIS, MOEDAS, BADGES E MUNDO 3 =================
+    console.log('\n📋 Teste 12: Gamificação Fase 2, Sistema de Níveis, Economia de Moedas e Mundo 3');
+    const world3Res = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/js/world3.js',
+      method: 'GET'
+    });
+    assert(world3Res.statusCode === 200, 'Arquivo /js/world3.js deve responder HTTP 200');
+    assert(world3Res.data.includes('World3KitchenManager'), 'world3.js deve conter a classe World3KitchenManager');
+    assert(world3Res.data.includes('createGiantApple'), 'world3.js deve conter modelo 3D da Maçã');
+    assert(world3Res.data.includes('createGiantMilkCarton'), 'world3.js deve conter modelo 3D do Leite');
+    assert(world3Res.data.includes('createGiantBread'), 'world3.js deve conter modelo 3D do Pão');
+
+    assert(indexRes.data.includes('/js/world3.js'), 'HTML deve importar o script do Mundo 3 (/js/world3.js)');
+    assert(indexRes.data.includes('student-dashboard-modal'), 'HTML deve conter o modal do Aluno (student-dashboard-modal)');
+    assert(indexRes.data.includes('parents-dashboard-modal'), 'HTML deve conter o modal dos Pais (parents-dashboard-modal)');
+    assert(indexRes.data.includes('hud-level-val'), 'HUD deve conter elemento de nível (hud-level-val)');
+    assert(indexRes.data.includes('hud-xp-fill'), 'HUD deve conter barra de progresso de XP (hud-xp-fill)');
+    assert(indexRes.data.includes('hud-coins-val'), 'HUD deve conter contador de moedas (hud-coins-val)');
+    assert(indexRes.data.includes('student-dash-btn'), 'HUD deve conter botão de acesso ao Painel do Aluno');
+    assert(indexRes.data.includes('parents-dash-btn'), 'HUD deve conter botão de acesso ao Painel dos Pais');
+    assert(indexRes.data.includes('select-world-3-card'), 'Modal de Mundos deve conter card do Mundo 3');
+
+    assert(stateJsRes.data.includes('calculateLevel'), 'state.js deve conter o método calculateLevel');
+    assert(stateJsRes.data.includes('addXp'), 'state.js deve conter o método addXp');
+    assert(stateJsRes.data.includes('addCoins'), 'state.js deve conter o método addCoins');
+    assert(stateJsRes.data.includes('recordWordAttempt'), 'state.js deve conter o método recordWordAttempt');
+    assert(stateJsRes.data.includes('getAccuracy'), 'state.js deve conter o método getAccuracy');
+    assert(stateJsRes.data.includes('kitchen_master'), 'state.js deve registrar a conquista kitchen_master');
+
+    const audioJsRes = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/js/audio.js',
+      method: 'GET'
+    });
+    assert(audioJsRes.statusCode === 200, 'Arquivo /js/audio.js deve responder HTTP 200');
+    assert(audioJsRes.data.includes('playCoin'), 'audio.js deve conter efeito sonoro playCoin');
+    assert(audioJsRes.data.includes('playLevelUp'), 'audio.js deve conter efeito sonoro playLevelUp');
+    assert(audioJsRes.data.includes('playDailyComplete'), 'audio.js deve conter efeito sonoro playDailyComplete');
+
+    // Teste de persistência e sanitização dos novos campos da Fase 2 na API
+    const gamifiedStateRes = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/api/user/state',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }, JSON.stringify({
+      state: {
+        xp: 220,
+        level: 3,
+        coins: 85,
+        badges: ['first_word', 'animal_master', 'kitchen_master'],
+        streak: 5,
+        learningTimeSeconds: 650,
+        wordStats: {
+          Apple: { correct: 4, wrong: 1, attempts: 5 },
+          Milk: { correct: 2, wrong: 0, attempts: 2 }
+        }
+      }
+    }));
+    assert(gamifiedStateRes.statusCode === 200, 'POST /api/user/state deve salvar campos da Fase 2 com HTTP 200');
+    const gamifiedJson = JSON.parse(gamifiedStateRes.data);
+    assert(gamifiedJson.state.xp === 220, 'API deve persistir XP');
+    assert(gamifiedJson.state.level === 3, 'API deve persistir Level');
+    assert(gamifiedJson.state.coins === 85, 'API deve persistir Moedas educacionais');
+    assert(gamifiedJson.state.badges.includes('kitchen_master'), 'API deve persistir badge kitchen_master');
+    assert(gamifiedJson.state.streak === 5, 'API deve persistir streak de dias ativos');
+    assert(gamifiedJson.state.wordStats.Apple.correct === 4, 'API deve persistir estatísticas da palavra Apple');
+
+    // Sanitização de valores inválidos da Fase 2
+    const safeGamified = sanitizeGameState({
+      xp: -50, // Inválido
+      coins: -10, // Inválido
+      badges: ['first_word', '<script>bad()</script>', 'invalid_badge_123'],
+      wordStats: {
+        '__proto__': { polluted: true },
+        'NormalWord': { correct: 5, wrong: -2, attempts: 5 }
+      }
+    });
+    assert(safeGamified.xp === undefined, 'Sanitizador deve rejeitar XP negativo');
+    assert(safeGamified.coins === undefined, 'Sanitizador deve rejeitar Moedas negativas');
+    assert(safeGamified.badges.includes('first_word') && !safeGamified.badges.includes('<script>bad()</script>'), 'Sanitizador deve filtrar badges maliciosos');
+    assert(safeGamified.wordStats.NormalWord.correct === 5, 'Sanitizador deve aceitar estatísticas legítimas');
+    assert(safeGamified.wordStats.NormalWord.wrong === 0, 'Sanitizador deve corrigir contagem de erros negativa');
+
+
   } catch (err) {
     console.error('❌ Erro durante a execução dos testes:', err);
     process.exitCode = 1;

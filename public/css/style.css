@@ -1320,3 +1320,472 @@ canvas {
   .speech-target-word { font-size: 28px; }
 }
 
+/* ================= FASE 2: GAMIFICAÇÃO & DASHBOARDS ================= */
+
+/* 1. HUD Level & XP Pill */
+.hud-gamification-pill {
+  pointer-events: auto;
+  cursor: pointer;
+  background: rgba(15, 23, 42, 0.88);
+  border: 2px solid #38bdf8;
+  border-radius: 999px;
+  padding: 4px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.25);
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.hud-gamification-pill:hover {
+  transform: scale(1.05);
+  border-color: #7dd3fc;
+}
+
+.level-badge {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.xp-bar-container {
+  width: 70px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.xp-text {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+/* 2. Moedas Educacionais */
+.coins-badge {
+  border-color: #facc15 !important;
+  color: #a16207 !important;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.15s;
+}
+
+.coins-badge:hover {
+  transform: scale(1.08);
+}
+
+.coin-icon {
+  font-size: 18px;
+  animation: coin-spin 3s infinite ease-in-out;
+}
+
+@keyframes coin-spin {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15) rotate(15deg); }
+}
+
+/* 3. Badge do Mundo 3 */
+.kitchen-badge {
+  background: linear-gradient(135deg, #ea580c, #c2410c);
+  color: white;
+  border: 2px solid #fdba74;
+}
+
+/* 4. Botões de HUD para os Dashboards */
+.hud-student-btn {
+  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  border: 3px solid #7dd3fc;
+}
+
+.hud-parents-btn {
+  background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+  border: 3px solid #c084fc;
+}
+
+/* 5. Banner Flutuante de Celebração (Gamification Banner) */
+.gamification-banner {
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  border: 3px solid #facc15;
+  border-radius: 16px;
+  padding: 14px 28px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(250, 204, 21, 0.4);
+  transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+}
+
+.gamification-banner.show-banner {
+  top: 24px;
+}
+
+.gamification-banner .banner-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #facc15;
+  margin-bottom: 2px;
+}
+
+.gamification-banner .banner-sub {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+/* 6. Card do Painel do Aluno */
+.student-dash-card {
+  max-width: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.student-dash-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.dash-avatar-badge {
+  font-size: 38px;
+  background: #0284c7;
+  border-radius: 16px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+.student-dash-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: white;
+}
+
+.student-dash-subtitle {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.student-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.student-stat-box {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-box-icon {
+  font-size: 20px;
+}
+
+.stat-box-val {
+  font-size: 16px;
+  font-weight: 900;
+  color: #38bdf8;
+}
+
+.stat-box-lbl {
+  font-size: 10px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+/* Desafio Diário */
+.daily-challenge-box {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.95));
+  border: 2px solid #eab308;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 14px rgba(234, 179, 8, 0.2);
+}
+
+.daily-challenge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.daily-badge {
+  font-size: 11px;
+  font-weight: 900;
+  color: #fef08a;
+  letter-spacing: 0.5px;
+}
+
+.daily-reward {
+  font-size: 11px;
+  font-weight: 800;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.15);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.daily-challenge-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 8px;
+}
+
+.daily-progress-container {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.daily-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #facc15, #4ade80);
+  border-radius: 5px;
+  transition: width 0.3s;
+}
+
+.daily-challenge-text {
+  font-size: 11px;
+  color: #cbd5e1;
+  text-align: right;
+  font-weight: 600;
+}
+
+.student-section-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #f1f5f9;
+  margin: 14px 0 8px;
+}
+
+/* Grid de Badges */
+.student-badges-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.badge-item-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.badge-item-card.unlocked {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.badge-item-card.locked {
+  opacity: 0.6;
+}
+
+.badge-item-card .badge-icon {
+  font-size: 24px;
+}
+
+.badge-item-card .badge-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: white;
+}
+
+.badge-item-card .badge-desc {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.badge-item-card .badge-state-tag {
+  font-size: 9px;
+  font-weight: 800;
+  color: #10b981;
+}
+
+.badge-item-card.locked .badge-state-tag {
+  color: #64748b;
+}
+
+/* Palavras para Praticar */
+.student-words-to-review {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.review-word-pill {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.review-word-pill:hover {
+  transform: scale(1.05);
+}
+
+.review-err-badge {
+  background: #ef4444;
+  color: white;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.no-review-msg {
+  font-size: 12px;
+  color: #10b981;
+  padding: 10px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 8px;
+  width: 100%;
+}
+
+/* 7. Card do Painel dos Pais */
+.parents-dash-card {
+  max-width: 540px;
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.parents-dash-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.parents-dash-icon {
+  font-size: 38px;
+  background: #7e22ce;
+  border-radius: 16px;
+  padding: 8px 12px;
+  box-shadow: 0 4px 12px rgba(126, 34, 206, 0.3);
+}
+
+.parents-dash-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: white;
+}
+
+.parents-dash-subtitle {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.parents-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.parents-metric-card {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 14px 12px;
+  text-align: center;
+}
+
+.parents-metric-card .metric-num {
+  font-size: 24px;
+  font-weight: 900;
+  color: #c084fc;
+}
+
+.parents-metric-card .metric-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.parents-advice-box {
+  background: rgba(126, 34, 206, 0.12);
+  border: 1px solid #a855f7;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.parents-review-section {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.advice-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #f1f5f9;
+  margin-bottom: 6px;
+}
+
+.advice-content {
+  font-size: 12px;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+.parents-review-list {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+}
+
+.parents-review-list li {
+  font-size: 12px;
+  color: #cbd5e1;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.parents-review-list li:last-child {
+  border-bottom: none;
+}
+
+

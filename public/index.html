@@ -21,12 +21,29 @@
   <!-- HUD Superior Limpo Infantil -->
   <div id="hud">
     <div class="hud-top-bar">
-      <!-- Contador de Estrelas Coletadas & Badge VIP -->
+      <!-- Gamificação (Level / XP / Moedas), Estrelas & Badge de Mundo -->
       <div class="hud-left">
+        <!-- Level & XP Badge -->
+        <div class="hud-gamification-pill" id="hud-level-pill" onclick="window.openStudentDashboard()" title="Ver Nível, XP e Missões">
+          <span class="level-badge" id="hud-level-val">LV 1</span>
+          <div class="xp-bar-container">
+            <div class="xp-bar-fill" id="hud-xp-fill" style="width: 0%;"></div>
+          </div>
+          <span class="xp-text" id="hud-xp-text">0/100 XP (0%)</span>
+        </div>
+
+        <!-- Moedas Educacionais -->
+        <div class="collectibles-badge coins-badge" id="hud-coins-pill" onclick="window.openStudentDashboard()" title="Moedas de Aprendizado">
+          <span class="coin-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align: -3px;"><circle cx="12" cy="12" r="10" fill="#facc15" stroke="#ca8a04" stroke-width="2"/><circle cx="12" cy="12" r="7.5" fill="#fde047" stroke="#eab308" stroke-width="1"/><text x="12" y="16" text-anchor="middle" font-size="11" font-weight="900" fill="#854d0e">🪙</text></svg></span>
+          <span id="hud-coins-val">0</span>
+        </div>
+
+        <!-- Contador de Estrelas Coletadas -->
         <div class="collectibles-badge">
           <span class="star-pulse">⭐</span>
           <span id="collectibles-counter">0/3</span>
         </div>
+
         <div id="current-world-badge" class="current-world-badge rainbow-badge" onclick="window.openWorldsModal()" title="Clique para trocar de mundo">
           🌈 MUNDO 1: RAINBOW
         </div>
@@ -54,7 +71,9 @@
 
       <!-- Ações do HUD -->
       <div class="hud-right">
-        <button class="hud-btn hud-worlds-btn" id="worlds-btn" onclick="window.openWorldsModal()" title="Explorar Mundos (World 1: Rainbow, World 2: Safari)">🌍</button>
+        <button class="hud-btn hud-student-btn" id="student-dash-btn" onclick="window.openStudentDashboard()" title="🎒 Painel do Aluno: Nível, Conquistas e Missões">🎒</button>
+        <button class="hud-btn hud-parents-btn" id="parents-dash-btn" onclick="window.openParentsDashboard()" title="👨‍👩‍👧 Painel Pedagógico dos Pais">👨‍👩‍👧</button>
+        <button class="hud-btn hud-worlds-btn" id="worlds-btn" onclick="window.openWorldsModal()" title="Explorar Mundos (World 1, World 2, World 3)">🌍</button>
         <button class="hud-btn hud-skin-btn" id="skin-shop-btn" title="Personalizar Avatar / Loja de Roupas e Chapéus">👕</button>
         <button class="hud-btn" id="respawn-btn" title="Voltar ao início da plataforma segura">🔁</button>
         <button class="hud-btn" id="mute-btn" title="Ativar ou desativar áudio">🔊</button>
@@ -258,15 +277,128 @@
         </div>
 
         <!-- Card Mundo 3 -->
-        <div class="world-choice-card world-locked">
+        <div class="world-choice-card" id="select-world-3-card" onclick="window.switchWorld(3)">
           <div class="world-card-icon">🍎</div>
           <div class="world-card-info">
             <div class="world-card-name">World 3: Kitchen & Fruits</div>
-            <div class="world-card-desc">Maçãs, bananas, pães, sucos e itens deliciosos.</div>
-            <span class="world-card-tag world-tag-soon">EM BREVE</span>
+            <div class="world-card-desc">Maçãs, Leite, Pão e Café da Manhã na Cozinha 3D!</div>
+            <span class="world-card-tag world-tag-vip" id="world-3-status-tag">VIP VITALÍCIO 👑</span>
           </div>
-          <button class="btn-play-world btn-disabled" disabled>Em Breve</button>
+          <button class="btn-play-world" id="btn-play-world-3" onclick="window.switchWorld(3)">Explorar Cozinha</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Painel do Aluno (Gamificação, Nível, Desafio do Dia e Conquistas) -->
+  <div class="modal-overlay" id="student-dashboard-modal">
+    <div class="modal-card student-dash-card">
+      <button class="close-modal-btn" id="close-student-dash-btn" onclick="window.closeStudentDashboard()" aria-label="Fechar">✕</button>
+      <div class="student-dash-header">
+        <div class="dash-avatar-badge">🎒</div>
+        <div>
+          <h2 class="student-dash-title">Painel do Aluno</h2>
+          <p class="student-dash-subtitle">Seu progresso, conquistas e missões em inglês!</p>
+        </div>
+      </div>
+
+      <!-- Resumo de Nível, XP e Moedas -->
+      <div class="student-stats-row">
+        <div class="student-stat-box">
+          <span class="stat-box-icon">⭐</span>
+          <span class="stat-box-val" id="dash-student-level">Level 1</span>
+          <span class="stat-box-lbl">Nível Atual</span>
+        </div>
+        <div class="student-stat-box">
+          <span class="stat-box-icon">⚡</span>
+          <span class="stat-box-val" id="dash-student-xp">0 XP</span>
+          <span class="stat-box-lbl">Experiência</span>
+        </div>
+        <div class="student-stat-box">
+          <span class="stat-box-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="vertical-align: middle;"><circle cx="12" cy="12" r="10" fill="#facc15" stroke="#ca8a04" stroke-width="2"/><circle cx="12" cy="12" r="7.5" fill="#fde047" stroke="#eab308" stroke-width="1"/><text x="12" y="16" text-anchor="middle" font-size="11" font-weight="900" fill="#854d0e">C</text></svg></span>
+          <span class="stat-box-val" id="dash-student-coins">0</span>
+          <span class="stat-box-lbl">Moedas Ganhas</span>
+        </div>
+      </div>
+
+      <!-- Missão / Desafio do Dia -->
+      <div class="daily-challenge-box">
+        <div class="daily-challenge-header">
+          <span class="daily-badge">🎯 MISSÃO DIÁRIA</span>
+          <span class="daily-reward">+25 🪙 +50 XP</span>
+        </div>
+        <div class="daily-challenge-title" id="daily-challenge-title">Pratique 3 palavras em inglês hoje!</div>
+        <div class="daily-progress-container">
+          <div class="daily-progress-bar" id="daily-challenge-progress-bar" style="width: 0%;"></div>
+        </div>
+        <div class="daily-challenge-text" id="daily-challenge-text">0/3 (0%)</div>
+      </div>
+
+      <!-- Conquistas / Badges -->
+      <div class="student-section-title">🏆 Conquistas & Medalhas</div>
+      <div class="student-badges-grid" id="student-badges-grid">
+        <!-- Preenchido dinamicamente por state.js -->
+      </div>
+
+      <!-- Palavras para Reforço -->
+      <div class="student-section-title">📚 Palavras para Praticar</div>
+      <div class="student-words-to-review" id="student-words-to-review">
+        <!-- Preenchido dinamicamente por state.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Painel Pedagógico dos Pais -->
+  <div class="modal-overlay" id="parents-dashboard-modal">
+    <div class="modal-card parents-dash-card">
+      <button class="close-modal-btn" id="close-parents-dash-btn" onclick="window.closeParentsDashboard()" aria-label="Fechar">✕</button>
+      <div class="parents-dash-header">
+        <div class="parents-dash-icon">👨‍👩‍👧</div>
+        <div>
+          <h2 class="parents-dash-title">Painel Pedagógico dos Pais</h2>
+          <p class="parents-dash-subtitle">Acompanhe o aprendizado lúdico de inglês do seu filho</p>
+        </div>
+      </div>
+
+      <!-- Métricas Principais -->
+      <div class="parents-metrics-grid">
+        <div class="parents-metric-card">
+          <div class="metric-num" id="parents-total-words">0</div>
+          <div class="metric-label">Palavras Aprendidas</div>
+        </div>
+        <div class="parents-metric-card">
+          <div class="metric-num" id="parents-accuracy-pct">100%</div>
+          <div class="metric-label">Taxa de Precisão</div>
+        </div>
+        <div class="parents-metric-card">
+          <div class="metric-num" id="parents-current-level">Nível 1</div>
+          <div class="metric-label">Nível Pedagógico</div>
+        </div>
+        <div class="parents-metric-card">
+          <div class="metric-num" id="parents-time-spent">0 minutos</div>
+          <div class="metric-label">Tempo Total Praticado</div>
+        </div>
+      </div>
+
+      <!-- Dica Pedagógica -->
+      <div class="parents-advice-box">
+        <div class="advice-title">💡 Orientação Pedagógica Personalizada:</div>
+        <div class="advice-content" id="parents-pedagogical-advice">
+          Carregando dicas pedagógicas...
+        </div>
+      </div>
+
+      <!-- Palavras para Revisão com a Família -->
+      <div class="parents-review-section">
+        <div class="advice-title">🔍 Palavras que Merecem Atenção em Casa:</div>
+        <ul class="parents-review-list" id="parents-words-review-list">
+          <!-- Preenchido dinamicamente por state.js -->
+        </ul>
+      </div>
+
+      <!-- Aviso Legal Obrigatório (Art. 14 LGPD / Ética) -->
+      <div class="modal-ethical-note" style="margin-top: 16px;">
+        💡 <b>Aviso aos Pais & Responsáveis:</b> Software lúdico educativo para introdução ao inglês infantil (Classificação Livre, recomendado 4+ anos). Não substitui diagnósticos, fonoterapia, consultas médicas ou acompanhamento pedagógico escolar formal. Compras e autorizações restritas a maiores de 18 anos.
       </div>
     </div>
   </div>
@@ -284,6 +416,7 @@
   <script src="/js/player.js?v=2.2.0"></script>
   <script src="/js/world.js?v=2.2.0"></script>
   <script src="/js/world2.js?v=2.2.0"></script>
+  <script src="/js/world3.js?v=2.2.0"></script>
   <script src="/js/challenges.js?v=2.2.0"></script>
   <script src="/js/portal.js?v=2.2.0"></script>
   <script src="/js/pix.js?v=2.2.0"></script>

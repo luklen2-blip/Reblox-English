@@ -92,15 +92,18 @@ class ChallengesManager {
     if (colorId === 'BLUE') {
       this.colorChallengeCompleted = true;
 
-      // Adiciona palavra dominada ao estado do jogo
+      // Adiciona palavra dominada e recompensas da Fase 2
       if (window.gameStateManager) {
-        window.gameStateManager.addMasteredWord('Blue');
+        window.gameStateManager.recordWordAttempt('Blue', true);
+        window.gameStateManager.addCoins(10);
+        window.gameStateManager.addXp(35);
+        window.gameStateManager.unlockBadge('color_master');
       }
 
-      // Efeito sonoro alegre e fala comemorativa
+      // Efeito sonoro alegre e fala contextual comemorativa
       if (window.audioManager) {
         window.audioManager.playSuccess();
-        window.audioManager.speak('BLUE! Great job! The bridge is open!');
+        window.audioManager.speak('BLUE! Awesome! The star is blue! The bridge is open!');
       }
 
       // Brilho intenso no bloco azul
@@ -114,15 +117,16 @@ class ChallengesManager {
 
       // Atualiza HUD para BLUE
       if (window.gameApp && typeof window.gameApp.setWordHighlight === 'function') {
-        window.gameApp.setWordHighlight('BLUE! 🟦', 'Você acertou a cor azul!');
+        window.gameApp.setWordHighlight('BLUE! 🟦', 'Você acertou: The star is blue!');
         setTimeout(() => {
           window.gameApp.setWordHighlight('STAR! ⭐', 'Colete as 3 estrelas douradas!');
-        }, 2200);
+        }, 2400);
       }
     } else {
-      // PISOU NO ERRADO: Reinicia o trecho 2 suavemente (teleporte suave para o início do trecho 2)
+      // PISOU NO ERRADO: Registra tentativa incorreta para fila de revisão inteligente
+      const wrongColor = colorId === 'RED' ? 'Red' : 'Green';
       if (window.gameStateManager) {
-        window.gameStateManager.addMasteredWord('Red');
+        window.gameStateManager.recordWordAttempt(wrongColor, false);
       }
 
       const now = Date.now();
@@ -131,7 +135,7 @@ class ChallengesManager {
 
         if (window.audioManager) {
           window.audioManager.playTryAgain();
-          window.audioManager.speak('Oops! Step on BLUE!');
+          window.audioManager.speak('Try again! Find the BLUE block!');
         }
 
         // Teleporte suave para o início da plataforma do Trecho 2
@@ -140,7 +144,7 @@ class ChallengesManager {
         this.player.mesh.position.copy(this.player.position);
 
         if (window.gameApp && typeof window.gameApp.setWordHighlight === 'function') {
-          window.gameApp.setWordHighlight('STEP ON BLUE!', 'Pise no bloco azul!');
+          window.gameApp.setWordHighlight('STEP ON BLUE! 🟦', 'Dica: Procure o bloco azul!');
         }
       }
     }
@@ -177,16 +181,20 @@ class ChallengesManager {
       window.audioManager.speak(item.spokenWord);
     }
 
-    // Atualiza estado central
+    // Atualiza estado central com gamificação Fase 2
     if (window.gameStateManager) {
       window.gameStateManager.addStar(1);
-      window.gameStateManager.addMasteredWord('Star');
+      window.gameStateManager.recordWordAttempt('Star', true);
+      window.gameStateManager.recordWordAttempt(item.numberWord, true);
+      window.gameStateManager.addCoins(5);
+      window.gameStateManager.addXp(20);
+      window.gameStateManager.unlockBadge('first_word');
     }
 
     // Atualiza HUD superior em destaque com a palavra e contador
     if (window.gameApp && typeof window.gameApp.setWordHighlight === 'function') {
       window.gameApp.setWordHighlight(
-        `${item.numberWord}! ⭐`,
+        `${item.numberWord}! ⭐ (+5 🪙 +20 XP)`,
         `Estrela ${this.collectedCount} de 3 coletada!`
       );
     }

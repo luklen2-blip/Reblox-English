@@ -93,6 +93,13 @@ class PortalManager {
       window.audioManager.speak("Level 1 Complete! Excellent job!");
     }
 
+    // Recompensas da Fase 2 para conclusão do Mundo 1
+    if (window.gameStateManager) {
+      window.gameStateManager.addCoins(50);
+      window.gameStateManager.addXp(100);
+      window.gameStateManager.unlockBadge('world1_complete');
+    }
+
     // 2. Disparo imediato de confetes coloridos
     this.fireConfetti();
 

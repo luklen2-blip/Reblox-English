@@ -11,7 +11,31 @@ let globalUserState = {
   currentWorld: 1,
   selectedSkin: 'default',
   collectedStars: 3,
-  wordsMastered: ['Walk', 'Jump', 'Blue', 'Red', 'Star']
+  wordsMastered: ['Walk', 'Jump', 'Blue', 'Red', 'Star'],
+  // Fase 2: Gamificação e Aprendizagem Contextual
+  xp: 0,
+  level: 1,
+  coins: 0,
+  badges: [],
+  wordStats: {
+    'Walk': { attempts: 1, correct: 1, wrong: 0 },
+    'Jump': { attempts: 1, correct: 1, wrong: 0 },
+    'Blue': { attempts: 1, correct: 1, wrong: 0 },
+    'Red': { attempts: 1, correct: 0, wrong: 1 },
+    'Star': { attempts: 1, correct: 1, wrong: 0 }
+  },
+  streak: 1,
+  lastActiveDate: new Date().toISOString().slice(0, 10),
+  learningTimeSeconds: 0,
+  dailyChallenge: {
+    id: 'daily_colors_1',
+    title: 'Find 3 Colors in English',
+    targetCount: 3,
+    progress: 0,
+    completed: false,
+    rewardCoins: 25,
+    rewardXp: 50
+  }
 };
 
 // Gerador oficial de Payload Pix EMV (Bacen) com CRC-16
@@ -124,6 +148,53 @@ function sanitizeGameState(raw) {
       .filter(w => typeof w === 'string' && w.trim().length > 0 && w.length <= 40)
       .map(w => w.trim().replace(/[<>\/]/g, '').slice(0, 40))
       .slice(0, 100);
+  }
+  // Fase 2: Gamificação e Métricas Seguras
+  if (typeof raw.xp === 'number' && Number.isInteger(raw.xp) && raw.xp >= 0 && raw.xp <= 1000000) {
+    safe.xp = raw.xp;
+  }
+  if (typeof raw.level === 'number' && Number.isInteger(raw.level) && raw.level >= 1 && raw.level <= 100) {
+    safe.level = raw.level;
+  }
+  if (typeof raw.coins === 'number' && Number.isInteger(raw.coins) && raw.coins >= 0 && raw.coins <= 1000000) {
+    safe.coins = raw.coins;
+  }
+  if (Array.isArray(raw.badges)) {
+    safe.badges = raw.badges
+      .filter(b => typeof b === 'string' && /^[a-zA-Z0-9_\-]{1,32}$/.test(b))
+      .slice(0, 50);
+  }
+  if (raw.wordStats && typeof raw.wordStats === 'object' && !Array.isArray(raw.wordStats)) {
+    safe.wordStats = {};
+    for (const [key, val] of Object.entries(raw.wordStats)) {
+      if (/^[a-zA-Z0-9_\- ]{1,32}$/.test(key) && val && typeof val === 'object') {
+        safe.wordStats[key] = {
+          attempts: Number.isInteger(val.attempts) && val.attempts >= 0 ? Math.min(val.attempts, 10000) : 0,
+          correct: Number.isInteger(val.correct) && val.correct >= 0 ? Math.min(val.correct, 10000) : 0,
+          wrong: Number.isInteger(val.wrong) && val.wrong >= 0 ? Math.min(val.wrong, 10000) : 0
+        };
+      }
+    }
+  }
+  if (typeof raw.streak === 'number' && Number.isInteger(raw.streak) && raw.streak >= 0 && raw.streak <= 3650) {
+    safe.streak = raw.streak;
+  }
+  if (typeof raw.lastActiveDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw.lastActiveDate)) {
+    safe.lastActiveDate = raw.lastActiveDate;
+  }
+  if (typeof raw.learningTimeSeconds === 'number' && Number.isInteger(raw.learningTimeSeconds) && raw.learningTimeSeconds >= 0) {
+    safe.learningTimeSeconds = Math.min(raw.learningTimeSeconds, 10000000);
+  }
+  if (raw.dailyChallenge && typeof raw.dailyChallenge === 'object') {
+    safe.dailyChallenge = {
+      id: typeof raw.dailyChallenge.id === 'string' ? raw.dailyChallenge.id.slice(0, 32) : 'daily_1',
+      title: typeof raw.dailyChallenge.title === 'string' ? raw.dailyChallenge.title.slice(0, 60) : 'Daily Challenge',
+      targetCount: Number.isInteger(raw.dailyChallenge.targetCount) ? raw.dailyChallenge.targetCount : 3,
+      progress: Number.isInteger(raw.dailyChallenge.progress) ? raw.dailyChallenge.progress : 0,
+      completed: Boolean(raw.dailyChallenge.completed),
+      rewardCoins: Number.isInteger(raw.dailyChallenge.rewardCoins) ? raw.dailyChallenge.rewardCoins : 25,
+      rewardXp: Number.isInteger(raw.dailyChallenge.rewardXp) ? raw.dailyChallenge.rewardXp : 50
+    };
   }
   return safe;
 }

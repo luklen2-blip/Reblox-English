@@ -76,12 +76,28 @@ async function runLiveTest() {
     const priv = await liveRequest('/privacidade');
     console.log(`   Termos: HTTP ${termos.statusCode} | Privacidade: HTTP ${priv.statusCode}`);
 
-    // 5. Assets de Mundo 2 e Reconhecimento de Voz
-    console.log('🦁 5. Testando assets do Mundo 2, Módulo de Voz e Seletor de Mundos...');
+    // 5. Assets de Mundo 2, Mundo 3 e Reconhecimento de Voz
+    console.log('🦁 5. Testando assets dos Mundos 2 e 3, Voz e Seletor de Mundos...');
     const w2 = await liveRequest('/js/world2.js');
+    const w3 = await liveRequest('/js/world3.js');
     const stt = await liveRequest('/js/speech_recognition.js');
     const wm = await liveRequest('/js/worlds_modal.js');
-    console.log(`   World 2 JS: HTTP ${w2.statusCode} (${w2.data.length} bytes) | STT JS: HTTP ${stt.statusCode} (${stt.data.length} bytes) | Worlds Modal JS: HTTP ${wm.statusCode} (${wm.data.length} bytes)`);
+    console.log(`   World 2 JS: HTTP ${w2.statusCode} (${w2.data.length} bytes) | World 3 JS: HTTP ${w3.statusCode} (${w3.data.length} bytes)`);
+    console.log(`   STT JS: HTTP ${stt.statusCode} (${stt.data.length} bytes) | Worlds Modal JS: HTTP ${wm.statusCode} (${wm.data.length} bytes)`);
+
+    // 6. Estado Gamificado da Fase 2
+    console.log('⭐ 6. Testando API de Estado Gamificado (/api/user/state)...');
+    const stateTest = await liveRequest('/api/user/state', 'POST', JSON.stringify({
+      state: {
+        xp: 100,
+        level: 2,
+        coins: 40,
+        badges: ['first_word', 'kitchen_master'],
+        streak: 2
+      }
+    }));
+    const stateData = JSON.parse(stateTest.data);
+    console.log(`   Estado HTTP ${stateTest.statusCode} | XP: ${stateData.state.xp} | Level: ${stateData.state.level} | Coins: ${stateData.state.coins}`);
 
     console.log('\n✅ HOMOLOGAÇÃO NA NUVEM CONCLUÍDA COM 100% DE SUCESSO!\n');
   } catch (err) {
