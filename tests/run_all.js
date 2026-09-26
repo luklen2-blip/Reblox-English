@@ -511,6 +511,26 @@ async function runTests() {
     const finalStatusRes = await request({ hostname: 'localhost', port: testPort, path: '/api/user/status' });
     const finalStatusJson = JSON.parse(finalStatusRes.data);
     assert(finalStatusJson.unlocked === true, 'Status do usuário após pagamento deve ser unlocked: true');
+
+    console.log('\n📋 Teste 16: Camada de Orientação Infantil Interativa (KidGuideManager)');
+    const kidGuideJsRes = await request({ hostname: 'localhost', port: testPort, path: '/js/kid_guide.js' });
+    assert(kidGuideJsRes.statusCode === 200, 'Arquivo /js/kid_guide.js deve responder HTTP 200');
+    assert(kidGuideJsRes.data.includes('class KidGuideManager'), 'kid_guide.js deve conter a classe KidGuideManager');
+    assert(kidGuideJsRes.data.includes('showStep1'), 'kid_guide.js deve implementar showStep1 (Apresentação)');
+    assert(kidGuideJsRes.data.includes('showStep2'), 'kid_guide.js deve implementar showStep2 (Mover o boneco)');
+    assert(kidGuideJsRes.data.includes('showStep3'), 'kid_guide.js deve implementar showStep3 (Pular)');
+    assert(kidGuideJsRes.data.includes('showStep4'), 'kid_guide.js deve implementar showStep4 (Explorar)');
+    assert(kidGuideJsRes.data.includes('showStep5'), 'kid_guide.js deve implementar showStep5 (Primeira Coleta)');
+    assert(kidGuideJsRes.data.includes('showStep6'), 'kid_guide.js deve implementar showStep6 (Primeiro Contato com Inglês)');
+    assert(kidGuideJsRes.data.includes('showStep7'), 'kid_guide.js deve implementar showStep7 (Identificar)');
+    assert(kidGuideJsRes.data.includes('showStep8'), 'kid_guide.js deve implementar showStep8 (Voice Quiz)');
+
+    const updatedAudioRes = await request({ hostname: 'localhost', port: testPort, path: '/js/audio.js' });
+    assert(updatedAudioRes.data.includes('speakPt'), 'audio.js deve conter o método speakPt em português brasileiro');
+    
+    const updatedHtmlRes = await request({ hostname: 'localhost', port: testPort, path: '/' });
+    assert(updatedHtmlRes.data.includes('/js/kid_guide.js'), 'HTML deve importar /js/kid_guide.js');
+    assert(updatedHtmlRes.data.includes('id="kid-guide-btn"'), 'HTML deve conter botão do guia no HUD (kid-guide-btn)');
   } catch (err) {
     console.error('❌ Erro durante a execução dos testes:', err);
     process.exitCode = 1;

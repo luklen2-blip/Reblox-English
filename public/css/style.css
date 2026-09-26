@@ -2054,5 +2054,364 @@ canvas {
   color: #94a3b8;
 }
 
+/* ==========================================================================
+   GUIA INFANTIL INTERATIVO (KID GUIDE ONBOARDING)
+   ========================================================================== */
+
+.kid-guide-container {
+  position: fixed;
+  top: 75px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  z-index: 9999;
+  display: none;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  width: 90%;
+  max-width: 440px;
+}
+
+.kid-guide-container.active {
+  display: block;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.kid-guide-card {
+  position: relative;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98));
+  border: 3px solid #38bdf8;
+  border-radius: 24px;
+  padding: 20px 22px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 24px rgba(56, 189, 248, 0.4);
+  backdrop-filter: blur(12px);
+  color: white;
+  text-align: center;
+  animation: kidCardBounce 0.4s ease-out;
+}
+
+@keyframes kidCardBounce {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.kid-guide-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.kid-guide-close-btn:hover {
+  color: #f43f5e;
+}
+
+.kid-guide-badge {
+  font-size: 42px;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+  animation: badgeWiggle 2s infinite ease-in-out;
+}
+
+@keyframes badgeWiggle {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-8deg) scale(1.08); }
+  75% { transform: rotate(8deg) scale(1.08); }
+}
+
+.kid-guide-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: #facc15;
+  margin: 0 0 4px 0;
+  text-shadow: 0 2px 8px rgba(250, 204, 21, 0.3);
+}
+
+.kid-guide-desc {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.kid-guide-dynamic-area {
+  margin: 10px 0;
+}
+
+.kid-guide-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.kid-guide-btn {
+  border: none;
+  border-radius: 16px;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.kid-guide-btn:hover {
+  transform: scale(1.05);
+}
+
+.kid-guide-btn:active {
+  transform: scale(0.96);
+}
+
+.kid-guide-btn-primary {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.kid-guide-btn-mic {
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  color: white;
+  box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4);
+  width: 100%;
+}
+
+.kid-guide-btn-subtle {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fde047;
+  border: 1px dashed #ca8a04;
+  font-size: 12px;
+  padding: 8px 14px;
+  margin-top: 6px;
+  cursor: pointer;
+}
+
+/* Teclado visual para desktop */
+.kid-guide-keys-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.kid-key-row {
+  display: flex;
+  gap: 8px;
+}
+
+.kid-key-cap {
+  background: #334155;
+  border: 2px solid #64748b;
+  border-bottom: 4px solid #475569;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 800;
+  color: white;
+}
+
+.kid-key-spacebar {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border: 2px solid #60a5fa;
+  border-bottom: 4px solid #1d4ed8;
+  border-radius: 12px;
+  padding: 10px 30px;
+  font-size: 16px;
+  font-weight: 900;
+  color: white;
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+}
+
+/* Destaque pulsante nos controles touch / mobile */
+.kid-highlight-target {
+  animation: kidHighlightPulse 1s infinite alternate !important;
+  box-shadow: 0 0 25px #facc15, 0 0 40px #f59e0b !important;
+  border: 3px solid #facc15 !important;
+}
+
+@keyframes kidHighlightPulse {
+  0% { transform: scale(1); filter: brightness(1); }
+  100% { transform: scale(1.1); filter: brightness(1.3); }
+}
+
+/* Animações e Cards */
+.pulse-fast {
+  animation: pulseFastAnim 1.2s infinite ease-in-out;
+}
+
+@keyframes pulseFastAnim {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.kid-star-burst {
+  font-size: 28px;
+  color: #facc15;
+  font-weight: 900;
+}
+
+.kid-word-spotlight {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  padding: 14px;
+  border: 2px solid #f43f5e;
+}
+
+.kid-spotlight-icon {
+  font-size: 46px;
+  line-height: 1;
+}
+
+.kid-spotlight-word {
+  font-size: 26px;
+  font-weight: 900;
+  color: #38bdf8;
+  letter-spacing: 2px;
+  margin: 6px 0;
+}
+
+.kid-listen-btn {
+  background: #3b82f6;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+/* Quiz de Identificação (Etapa 7) */
+.kid-quiz-cards-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.kid-quiz-choice-card {
+  flex: 1;
+  background: #1e293b;
+  border: 2px solid #475569;
+  border-radius: 16px;
+  padding: 12px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.kid-quiz-choice-card:hover {
+  transform: translateY(-3px);
+  border-color: #38bdf8;
+}
+
+.kid-quiz-choice-card .choice-emoji {
+  font-size: 32px;
+}
+
+.kid-quiz-choice-card .choice-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: white;
+}
+
+.kid-quiz-choice-card.card-correct {
+  background: #065f46 !important;
+  border-color: #34d399 !important;
+  box-shadow: 0 0 16px rgba(52, 211, 153, 0.6);
+}
+
+.kid-quiz-choice-card.card-shake {
+  animation: cardShakeAnim 0.5s ease-in-out;
+  border-color: #f59e0b !important;
+}
+
+@keyframes cardShakeAnim {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.kid-feedback-text {
+  font-size: 14px;
+  margin-top: 8px;
+  min-height: 20px;
+}
+
+/* Voice Quiz Hero (Etapa 8) */
+.kid-mic-hero-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.kid-mic-big-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ec4899, #be185d);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: white;
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+}
+
+.kid-mic-word-tag {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.kid-mic-word-tag b {
+  color: #38bdf8;
+  font-size: 22px;
+}
+
+.kid-reward-banner {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  border-radius: 12px;
+  padding: 8px 16px;
+  color: #6ee7b7;
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+.kid-ready-badge {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  padding: 10px 20px;
+  border-radius: 14px;
+  font-weight: 900;
+  font-size: 18px;
+  color: white;
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.hud-btn.hud-guide-btn {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border-color: #34d399;
+}
+
+
 
 

@@ -84,8 +84,9 @@ async function runLiveTest() {
     const quiz = await liveRequest('/js/quiz_game.js');
     const stt = await liveRequest('/js/speech_recognition.js');
     const wm = await liveRequest('/js/worlds_modal.js');
+    const kg = await liveRequest('/js/kid_guide.js');
     console.log(`   World 2: HTTP ${w2.statusCode} | World 3: HTTP ${w3.statusCode} | World 4: HTTP ${w4.statusCode} (${w4.data.length} bytes)`);
-    console.log(`   Quiz JS: HTTP ${quiz.statusCode} (${quiz.data.length} bytes) | STT JS: HTTP ${stt.statusCode} | Worlds Modal JS: HTTP ${wm.statusCode}`);
+    console.log(`   Quiz: HTTP ${quiz.statusCode} | Guide: HTTP ${kg.statusCode} (${kg.data.length} bytes) | Worlds Modal: HTTP ${wm.statusCode}`);
 
     // 6. Estado Gamificado da Fase 2
     console.log('⭐ 6. Testando API de Estado Gamificado (/api/user/state)...');

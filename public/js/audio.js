@@ -38,6 +38,16 @@ class AudioManager {
         v.name.includes('Jenny')
       );
       this.selectedVoice = friendlyVoices[0] || usVoices[0] || voices[0] || null;
+
+      // Procura uma voz em pt-BR acolhedora para o guia infantil
+      const ptVoices = voices.filter(v => v.lang === 'pt-BR' || v.lang.startsWith('pt'));
+      this.selectedVoicePt = ptVoices.find(v => 
+        v.name.includes('Natural') || 
+        v.name.includes('Google') || 
+        v.name.includes('Luciana') || 
+        v.name.includes('Francisca') ||
+        v.name.includes('Maria')
+      ) || ptVoices[0] || null;
     };
 
     setBestVoice();
@@ -78,6 +88,35 @@ class AudioManager {
     utterance.onerror = () => {
       clearTimeout(this.speechWatchdog);
     };
+
+    clearTimeout(this.speechWatchdog);
+    this.speechWatchdog = setTimeout(() => {
+      if (this.speechSynth && this.speechSynth.speaking) {
+        this.speechSynth.resume();
+      }
+    }, 4000);
+
+    this.speechSynth.speak(utterance);
+  }
+
+  // Síntese de voz em português brasileiro para orientações e guia infantil
+  speakPt(text, rate = 0.95, pitch = 1.15) {
+    if (this.muted || !this.speechSynth) return;
+
+    this.speechSynth.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'pt-BR';
+    utterance.rate = rate; // fala natural, pausada e acolhedora
+    utterance.pitch = pitch; // tom alegre e simpático
+    if (this.selectedVoicePt) {
+      utterance.voice = this.selectedVoicePt;
+    }
+
+    this.showWordBubble(text);
+
+    utterance.onend = () => { clearTimeout(this.speechWatchdog); };
+    utterance.onerror = () => { clearTimeout(this.speechWatchdog); };
 
     clearTimeout(this.speechWatchdog);
     this.speechWatchdog = setTimeout(() => {

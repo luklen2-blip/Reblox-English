@@ -641,6 +641,13 @@ class GameApp {
         window.gameStateManager.addMasteredWord('Walk');
       }
 
+      if (isMoving && window.kidGuide && window.kidGuide.isActive && window.kidGuide.currentStep === 2) {
+        window.kidGuide.handlePlayerMove();
+      }
+      if (window.inputManager.jump && window.kidGuide && window.kidGuide.isActive && window.kidGuide.currentStep === 3) {
+        window.kidGuide.handlePlayerJump();
+      }
+
       this.player.update(
         delta,
         window.inputManager,
@@ -694,6 +701,7 @@ window.addEventListener('keydown', (e) => {
     if (typeof window.closeStudentDashboard === 'function') window.closeStudentDashboard();
     if (typeof window.closeParentsDashboard === 'function') window.closeParentsDashboard();
     if (window.kidSpeech) window.kidSpeech.stopListening();
+    if (window.kidGuide) window.kidGuide.close();
     const unlockModal = document.getElementById('unlock-modal');
     if (unlockModal) unlockModal.classList.remove('active');
     const victoryModal = document.getElementById('victory-modal');
