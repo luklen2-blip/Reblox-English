@@ -837,6 +837,18 @@ canvas {
   line-height: 1.4;
 }
 
+.modal-ethical-note {
+  font-size: 10.5px;
+  color: #94a3b8;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-top: 10px;
+  line-height: 1.45;
+  text-align: left;
+}
+
 .modal-footer-links {
   margin-top: 12px;
   font-size: 11px;

@@ -71,6 +71,21 @@ class AudioManager {
     // Mostra balão visual de aprendizado na tela
     this.showWordBubble(text);
 
+    // Watchdog anti-stall para Safari / Chrome móvel
+    utterance.onend = () => {
+      clearTimeout(this.speechWatchdog);
+    };
+    utterance.onerror = () => {
+      clearTimeout(this.speechWatchdog);
+    };
+
+    clearTimeout(this.speechWatchdog);
+    this.speechWatchdog = setTimeout(() => {
+      if (this.speechSynth && this.speechSynth.speaking) {
+        this.speechSynth.resume();
+      }
+    }, 4000);
+
     this.speechSynth.speak(utterance);
   }
 

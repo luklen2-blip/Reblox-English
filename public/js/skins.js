@@ -41,13 +41,27 @@ class SkinManager {
       });
     }
 
-    // Botão fechar modal
+    // Botão fechar modal e Fechamento via Fundo/Escape
     const closeBtn = document.getElementById('close-skin-shop-btn');
     if (closeBtn) {
       closeBtn.addEventListener('click', () => {
         this.close();
       });
     }
+
+    if (this.modal) {
+      this.modal.addEventListener('click', (e) => {
+        if (e.target === this.modal) {
+          this.close();
+        }
+      });
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' || e.code === 'Escape') {
+        this.close();
+      }
+    });
 
     // Botão CTA para destravar Pro dentro do modal
     const unlockProBtn = document.getElementById('skin-modal-unlock-pro');

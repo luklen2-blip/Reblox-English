@@ -2,7 +2,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const { server, generatePixPayload } = require('../server');
+const { server, generatePixPayload, sanitizeGameState, isRateLimited } = require('../server');
 
 let passedTests = 0;
 let totalTests = 0;
@@ -258,6 +258,46 @@ async function runTests() {
     const updateJson = JSON.parse(updateStateRes.data);
     assert(updateJson.state.selectedSkin === 'fire', 'Skin deve ter sido atualizada para fire');
     assert(updateJson.state.wordsMastered.includes('Lion'), 'wordsMastered deve incluir nova palavra Lion');
+
+    // ================= TESTE 9: CABEÇALHOS DE SEGURANÇA E DEFESA PATH TRAVERSAL =================
+    console.log('\n📋 Teste 9: Hardening de Segurança (OWASP Headers & Anti-Path Traversal)');
+    assert(healthRes.headers['x-content-type-options'] === 'nosniff', 'Cabeçalho X-Content-Type-Options nosniff presente');
+    assert(healthRes.headers['x-frame-options'] === 'SAMEORIGIN', 'Cabeçalho X-Frame-Options SAMEORIGIN presente');
+    assert(healthRes.headers['x-xss-protection'] === '1; mode=block', 'Cabeçalho X-XSS-Protection 1; mode=block presente');
+    assert(healthRes.headers['referrer-policy'] === 'strict-origin-when-cross-origin', 'Cabeçalho Referrer-Policy presente');
+
+    const traversalRes = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/..%2f..%2fserver.js',
+      method: 'GET'
+    });
+    assert(traversalRes.statusCode === 403, 'Tentativa de path traversal deve ser bloqueada com HTTP 403');
+
+    // ================= TESTE 10: SANITIZAÇÃO ESTRITA DE ESTADO (ANTI-PROTOTYPE POLLUTION) =================
+    console.log('\n📋 Teste 10: Sanitização Estrita de Entrada e Validação do Estado');
+    assert(sanitizeGameState(null) === null, 'sanitizeGameState com null retorna null');
+    assert(sanitizeGameState('invalid') === null, 'sanitizeGameState com string retorna null');
+    const safeOutput = sanitizeGameState({
+      isProUnlocked: true,
+      currentWorld: 99, // Inválido (aceita apenas 1 a 10)
+      selectedSkin: 'ninja_pro',
+      collectedStars: -5, // Inválido
+      wordsMastered: ['  Jump  ', '<script>alert("xss")</script>Apple']
+    });
+    assert(safeOutput.isProUnlocked === true, 'isProUnlocked validado como boolean');
+    assert(safeOutput.currentWorld === undefined, 'currentWorld fora do intervalo 1-10 deve ser ignorado');
+    assert(safeOutput.collectedStars === undefined, 'collectedStars negativo deve ser ignorado');
+    assert(safeOutput.wordsMastered[0] === 'Jump', 'wordsMastered deve remover espaços das palavras');
+    assert(!safeOutput.wordsMastered[1].includes('<script>'), 'wordsMastered deve sanitizar caracteres perigosos');
+    assert(typeof isRateLimited === 'function', 'Função isRateLimited deve estar disponível');
+
+    // ================= TESTE 11: AVISOS ÉTICOS, PADRÃO MÉDICO/PSICOLÓGICO E DPO =================
+    console.log('\n📋 Teste 11: Avisos Éticos, Não-Substituição Médica/Psicológica e DPO');
+    assert(termosRes.data.includes('NÃO substituem diagnósticos') || termosRes.data.includes('psicológico'), 'Termos devem conter aviso de não substituição médica/psicológica');
+    assert(privRes.data.includes('luciano.obby@gmail.com'), 'Política de privacidade deve conter canal de contato oficial do DPO');
+    assert(indexRes.data.includes('modal-ethical-note'), 'Modal de conversão no HTML deve conter aviso ético aos pais');
+    assert(indexRes.data.includes('apple-mobile-web-app-capable'), 'HTML deve conter meta tag para PWA e visualização móvel');
 
   } catch (err) {
     console.error('❌ Erro durante a execução dos testes:', err);

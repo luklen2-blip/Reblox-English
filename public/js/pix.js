@@ -144,13 +144,28 @@ class PixCheckout {
       });
     }
 
-    // 3. Botão Fechar Modal
+    // 3. Botão Fechar Modal e Fechamento via Fundo/Escape
     const closeBtn = document.getElementById('close-modal-btn');
     if (closeBtn) {
       closeBtn.addEventListener('click', () => {
         this.handleClose();
       });
     }
+
+    const victoryModal = document.getElementById('victory-modal');
+    if (victoryModal) {
+      victoryModal.addEventListener('click', (e) => {
+        if (e.target === victoryModal) {
+          this.handleClose();
+        }
+      });
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' || e.code === 'Escape') {
+        this.handleClose();
+      }
+    });
 
     // 4. Toggle do QR Code Drawer
     const toggleQrBtn = document.getElementById('toggle-qr-btn');

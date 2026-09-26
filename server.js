@@ -73,9 +73,71 @@ const MIME_TYPES = {
   '.webm': 'video/webm'
 };
 
+// Rate Limiter em memória para prevenção de abuso e ataques de força bruta/DoS
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW = 60 * 1000; // Janela de 1 minuto
+const MAX_GENERAL_REQ_PER_MIN = 300;
+const MAX_API_MUTATION_PER_MIN = 60;
+
+function isRateLimited(ip, isMutation = false) {
+  const now = Date.now();
+  const limit = isMutation ? MAX_API_MUTATION_PER_MIN : MAX_GENERAL_REQ_PER_MIN;
+  
+  if (!rateLimitMap.has(ip)) {
+    rateLimitMap.set(ip, []);
+  }
+  
+  const timestamps = rateLimitMap.get(ip).filter(t => now - t < RATE_LIMIT_WINDOW);
+  timestamps.push(now);
+  rateLimitMap.set(ip, timestamps);
+  
+  if (rateLimitMap.size > 2000) {
+    for (const [key, times] of rateLimitMap.entries()) {
+      if (times.length === 0 || now - times[times.length - 1] > RATE_LIMIT_WINDOW) {
+        rateLimitMap.delete(key);
+      }
+    }
+  }
+  
+  return timestamps.length > limit;
+}
+
+// Sanitização e validação estrita do estado do jogo (prevenção de prototype pollution)
+function sanitizeGameState(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+  const safe = {};
+  
+  if (typeof raw.isProUnlocked === 'boolean') {
+    safe.isProUnlocked = raw.isProUnlocked;
+  }
+  if (typeof raw.currentWorld === 'number' && Number.isInteger(raw.currentWorld) && raw.currentWorld >= 1 && raw.currentWorld <= 10) {
+    safe.currentWorld = raw.currentWorld;
+  }
+  if (typeof raw.selectedSkin === 'string' && /^[a-zA-Z0-9_\-]{1,32}$/.test(raw.selectedSkin)) {
+    safe.selectedSkin = raw.selectedSkin;
+  }
+  if (typeof raw.collectedStars === 'number' && Number.isInteger(raw.collectedStars) && raw.collectedStars >= 0 && raw.collectedStars <= 1000) {
+    safe.collectedStars = raw.collectedStars;
+  }
+  if (Array.isArray(raw.wordsMastered)) {
+    safe.wordsMastered = raw.wordsMastered
+      .filter(w => typeof w === 'string' && w.trim().length > 0 && w.length <= 40)
+      .map(w => w.trim().replace(/[<>\/]/g, '').slice(0, 40))
+      .slice(0, 100);
+  }
+  return safe;
+}
+
 const server = http.createServer((req, res) => {
   const reqUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   let pathname = reqUrl.pathname;
+  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
+
+  // Cabeçalhos de Segurança (OWASP Standard)
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
 
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -85,6 +147,13 @@ const server = http.createServer((req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
+    return;
+  }
+
+  // Verificação de Rate Limit geral
+  if (isRateLimited(clientIp, false)) {
+    res.writeHead(429, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ error: 'Muitas requisições. Aguarde um momento.', status: 429 }));
     return;
   }
 
@@ -167,13 +236,19 @@ const server = http.createServer((req, res) => {
   }
 
   if (pathname === '/api/user/state' && req.method === 'POST') {
+    if (isRateLimited(clientIp, true)) {
+      res.writeHead(429, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ error: 'Muitas requisições. Aguarde um momento.', status: 429 }));
+      return;
+    }
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', () => {
       try {
         const parsed = JSON.parse(body || '{}');
-        if (parsed.state) {
-          globalUserState = { ...globalUserState, ...parsed.state };
+        const sanitized = sanitizeGameState(parsed.state);
+        if (sanitized) {
+          globalUserState = { ...globalUserState, ...sanitized };
           if (globalUserState.isProUnlocked) {
             globalUserUnlocked = true;
           }
@@ -200,13 +275,26 @@ const server = http.createServer((req, res) => {
     pathname = '/index.html';
   }
 
-  // 4. Resolução Universal e Resiliente de Arquivos Estáticos (public/ e raiz)
+  // 4. Resolução Universal e Resiliente de Arquivos Estáticos com Defesa Anti-Traversal
   const targetFile = pathname.startsWith('/') ? pathname.slice(1) : pathname;
+  let decodedTarget = targetFile;
+  try {
+    decodedTarget = decodeURIComponent(targetFile);
+  } catch (e) {
+    decodedTarget = targetFile;
+  }
+
+  if (decodedTarget.includes('..') || path.isAbsolute(decodedTarget)) {
+    res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ error: 'Acesso negado: caminho inválido', path: pathname }));
+    return;
+  }
+
   const candidatePaths = [
-    path.join(__dirname, 'public', targetFile),
-    path.join(__dirname, targetFile),
-    path.join(process.cwd(), 'public', targetFile),
-    path.join(process.cwd(), targetFile)
+    path.join(__dirname, 'public', decodedTarget),
+    path.join(__dirname, decodedTarget),
+    path.join(process.cwd(), 'public', decodedTarget),
+    path.join(process.cwd(), decodedTarget)
   ];
 
   let filePath = candidatePaths.find(p => {
@@ -279,4 +367,4 @@ if (require.main === module) {
   startServer(PORT);
 }
 
-module.exports = { server, generatePixPayload };
+module.exports = { server, generatePixPayload, sanitizeGameState, isRateLimited };
