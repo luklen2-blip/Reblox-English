@@ -93,7 +93,10 @@ class World2SafariManager {
     mesh.add(topCap);
 
     const box = new THREE.Box3();
-    box.setFromObject(mesh);
+    box.setFromCenterAndSize(
+      new THREE.Vector3(x, y, z),
+      new THREE.Vector3(width, height, depth)
+    );
 
     const platformObj = {
       mesh,

@@ -87,11 +87,18 @@ class GameApp {
 
       // Reseta posição do jogador para o início do Safari
       this.player.position.set(0, 3.5, 0);
-      this.player.checkpoint.set(0, 3.5, 0);
+      this.player.setCheckpoint(new THREE.Vector3(0, 3.5, 0));
       this.player.velocity.set(0, 0, 0);
       this.player.mesh.position.copy(this.player.position);
       this.player.isFrozen = false;
       this.sectionAnnounced = {};
+
+      // Atualiza badge de mundo ativo no HUD
+      const worldBadge = document.getElementById('current-world-badge');
+      if (worldBadge) {
+        worldBadge.textContent = '🦁 MUNDO 2: SAFARI';
+        worldBadge.className = 'current-world-badge safari-badge';
+      }
 
       // Atualiza HUD para Safari
       this.setWordHighlight('LION! 🦁', 'Explore o Safari e encontre o Leão!');
@@ -117,11 +124,18 @@ class GameApp {
       window.portalManager = this.portal;
 
       this.player.position.set(0, 3.5, 0);
-      this.player.checkpoint.set(0, 3.5, 0);
+      this.player.setCheckpoint(new THREE.Vector3(0, 3.5, 0));
       this.player.velocity.set(0, 0, 0);
       this.player.mesh.position.copy(this.player.position);
       this.player.isFrozen = false;
       this.sectionAnnounced = {};
+
+      // Atualiza badge de mundo ativo no HUD
+      const worldBadge = document.getElementById('current-world-badge');
+      if (worldBadge) {
+        worldBadge.textContent = '🌈 MUNDO 1: RAINBOW';
+        worldBadge.className = 'current-world-badge rainbow-badge';
+      }
 
       this.setWordHighlight('JUMP! 🦘', 'Salte pelas plataformas flutuantes');
       const counterEl = document.getElementById('collectibles-counter');
@@ -225,26 +239,44 @@ class GameApp {
       });
     }
 
-    if (playWorld1Btn) {
-      playWorld1Btn.addEventListener('click', () => {
-        this.switchWorld(1);
+    if (worldsModal) {
+      worldsModal.addEventListener('click', (e) => {
+        if (e.target === worldsModal) {
+          worldsModal.classList.remove('active');
+        }
       });
     }
 
-    if (playWorld2Btn) {
-      playWorld2Btn.addEventListener('click', () => {
-        const isVIP = localStorage.getItem('roblox_english_obby_unlocked') === 'true';
-        if (!isVIP) {
-          // Se não for VIP, permite explorar e abre o modal de desbloqueio para incentivo
-          this.switchWorld(2);
-          setTimeout(() => {
-            if (window.audioManager) {
-              window.audioManager.speak("Welcome to Safari Park! Explore the animals!");
-            }
-          }, 800);
-        } else {
-          this.switchWorld(2);
-        }
+    const selectWorld1 = (e) => {
+      if (e) e.stopPropagation();
+      console.log('🌈 Selecionando World 1: Rainbow Bridge...');
+      this.switchWorld(1);
+    };
+
+    const selectWorld2 = (e) => {
+      if (e) e.stopPropagation();
+      console.log('🦁 Selecionando World 2: Animal Safari...');
+      this.switchWorld(2);
+    };
+
+    if (playWorld1Btn) playWorld1Btn.addEventListener('click', selectWorld1);
+    if (card1) {
+      card1.style.cursor = 'pointer';
+      card1.addEventListener('click', selectWorld1);
+    }
+
+    if (playWorld2Btn) playWorld2Btn.addEventListener('click', selectWorld2);
+    if (card2) {
+      card2.style.cursor = 'pointer';
+      card2.addEventListener('click', selectWorld2);
+    }
+
+    // Badge clicável no HUD para abrir o modal de mundos rapidamente
+    const worldBadge = document.getElementById('current-world-badge');
+    if (worldBadge && worldsBtn) {
+      worldBadge.style.cursor = 'pointer';
+      worldBadge.addEventListener('click', () => {
+        worldsBtn.click();
       });
     }
 

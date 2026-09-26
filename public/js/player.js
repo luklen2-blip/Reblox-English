@@ -17,6 +17,7 @@ class Player {
 
     // Checkpoint seguro atual
     this.currentCheckpoint = new THREE.Vector3(0, 3, 0);
+    this.checkpoint = this.currentCheckpoint;
 
     // Variáveis de animação
     this.walkCycle = 0;
