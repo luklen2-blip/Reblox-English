@@ -485,7 +485,15 @@ class GameApp {
   }
 }
 
-// Inicializa quando o DOM estiver pronto
-window.addEventListener('DOMContentLoaded', () => {
-  window.gameApp = new GameApp();
-});
+// Inicialização resiliente e infalível
+function bootGame() {
+  if (!window.gameApp) {
+    window.gameApp = new GameApp();
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootGame);
+} else {
+  bootGame();
+}

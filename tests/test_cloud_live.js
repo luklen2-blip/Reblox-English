@@ -76,10 +76,11 @@ async function runLiveTest() {
     console.log(`   Termos: HTTP ${termos.statusCode} | Privacidade: HTTP ${priv.statusCode}`);
 
     // 5. Assets de Mundo 2 e Reconhecimento de Voz
-    console.log('🦁 5. Testando assets do Mundo 2 e Módulo de Voz...');
+    console.log('🦁 5. Testando assets do Mundo 2, Módulo de Voz e Seletor de Mundos...');
     const w2 = await liveRequest('/js/world2.js');
     const stt = await liveRequest('/js/speech_recognition.js');
-    console.log(`   World 2 JS: HTTP ${w2.statusCode} (${w2.data.length} bytes) | STT JS: HTTP ${stt.statusCode} (${stt.data.length} bytes)`);
+    const wm = await liveRequest('/js/worlds_modal.js');
+    console.log(`   World 2 JS: HTTP ${w2.statusCode} (${w2.data.length} bytes) | STT JS: HTTP ${stt.statusCode} (${stt.data.length} bytes) | Worlds Modal JS: HTTP ${wm.statusCode} (${wm.data.length} bytes)`);
 
     console.log('\n✅ HOMOLOGAÇÃO NA NUVEM CONCLUÍDA COM 100% DE SUCESSO!\n');
   } catch (err) {

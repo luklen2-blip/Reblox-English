@@ -121,6 +121,15 @@ async function runTests() {
     assert(speechRes.statusCode === 200, 'Arquivo /js/speech_recognition.js deve responder HTTP 200');
     assert(speechRes.data.includes('KidSpeechRecognition'), 'speech_recognition.js deve conter KidSpeechRecognition');
 
+    const worldsModalRes = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/js/worlds_modal.js',
+      method: 'GET'
+    });
+    assert(worldsModalRes.statusCode === 200, 'Arquivo /js/worlds_modal.js deve responder HTTP 200');
+    assert(worldsModalRes.data.includes('WorldsModalManager'), 'worlds_modal.js deve conter WorldsModalManager');
+
     // ================= TESTE 4: PÁGINAS LEGAIS (TERMOS E PRIVACIDADE) =================
     console.log('\n📋 Teste 4: Conformidade Legal Brasileira (CDC, ECA e LGPD)');
     const termosRes = await request({

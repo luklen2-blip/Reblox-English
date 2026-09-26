@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Roblox English Obby 3D - Aprenda Inglês Brincando</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style.css?v=2.2.0">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌈</text></svg>">
 </head>
 <body>
@@ -20,7 +20,7 @@
           <span class="star-pulse">⭐</span>
           <span id="collectibles-counter">0/3</span>
         </div>
-        <div id="current-world-badge" class="current-world-badge rainbow-badge" title="Clique para trocar de mundo">
+        <div id="current-world-badge" class="current-world-badge rainbow-badge" onclick="window.openWorldsModal()" title="Clique para trocar de mundo">
           🌈 MUNDO 1: RAINBOW
         </div>
         <div id="vip-badge" class="vip-badge" style="display: none;">
@@ -47,7 +47,7 @@
 
       <!-- Ações do HUD -->
       <div class="hud-right">
-        <button class="hud-btn hud-worlds-btn" id="worlds-btn" title="Explorar Mundos (World 1: Rainbow, World 2: Safari)">🌍</button>
+        <button class="hud-btn hud-worlds-btn" id="worlds-btn" onclick="window.openWorldsModal()" title="Explorar Mundos (World 1: Rainbow, World 2: Safari)">🌍</button>
         <button class="hud-btn hud-skin-btn" id="skin-shop-btn" title="Personalizar Avatar / Loja de Roupas e Chapéus">👕</button>
         <button class="hud-btn" id="respawn-btn" title="Voltar ao início da plataforma segura">🔁</button>
         <button class="hud-btn" id="mute-btn" title="Ativar ou desativar áudio">🔊</button>
@@ -201,31 +201,31 @@
   <!-- Modal de Seleção de Mundos (World Selector) -->
   <div class="modal-overlay" id="worlds-modal">
     <div class="modal-card worlds-modal-card">
-      <button class="close-modal-btn" id="close-worlds-modal-btn" aria-label="Fechar">✕</button>
+      <button class="close-modal-btn" id="close-worlds-modal-btn" onclick="window.closeWorldsModal()" aria-label="Fechar">✕</button>
       <h2 class="worlds-modal-title"><span>🌍</span> Escolha o Mundo</h2>
       <p class="worlds-modal-subtitle">Aprenda inglês em mapas 3D temáticos incríveis!</p>
 
       <div class="worlds-grid">
         <!-- Card Mundo 1 -->
-        <div class="world-choice-card active-world" id="select-world-1-card">
+        <div class="world-choice-card active-world" id="select-world-1-card" onclick="window.switchWorld(1)">
           <div class="world-card-icon">🌈</div>
           <div class="world-card-info">
             <div class="world-card-name">World 1: Rainbow Bridge</div>
             <div class="world-card-desc">Cores (Blue/Red/Green), Saltos e Estrelas Douradas!</div>
             <span class="world-card-tag world-tag-free">LIBERADO ✓</span>
           </div>
-          <button class="btn-play-world" id="btn-play-world-1">Jogar Agora</button>
+          <button class="btn-play-world" id="btn-play-world-1" onclick="window.switchWorld(1)">Jogar Agora</button>
         </div>
 
         <!-- Card Mundo 2 -->
-        <div class="world-choice-card" id="select-world-2-card">
+        <div class="world-choice-card" id="select-world-2-card" onclick="window.switchWorld(2)">
           <div class="world-card-icon">🦁</div>
           <div class="world-card-info">
             <div class="world-card-name">World 2: Animal Safari</div>
             <div class="world-card-desc">Leão, Elefante, Macaco e Bananas na Savana 3D!</div>
             <span class="world-card-tag world-tag-vip" id="world-2-status-tag">VIP VITALÍCIO 👑</span>
           </div>
-          <button class="btn-play-world" id="btn-play-world-2">Explorar Safari</button>
+          <button class="btn-play-world" id="btn-play-world-2" onclick="window.switchWorld(2)">Explorar Safari</button>
         </div>
 
         <!-- Card Mundo 3 -->
@@ -246,17 +246,18 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
-  <!-- Módulos da Aplicação -->
-  <script src="/js/audio.js"></script>
-  <script src="/js/speech_recognition.js"></script>
-  <script src="/js/controls.js"></script>
-  <script src="/js/skins.js"></script>
-  <script src="/js/player.js"></script>
-  <script src="/js/world.js"></script>
-  <script src="/js/world2.js"></script>
-  <script src="/js/challenges.js"></script>
-  <script src="/js/portal.js"></script>
-  <script src="/js/pix.js"></script>
-  <script src="/js/main.js"></script>
+  <!-- Módulos da Aplicação com Cache-Busting -->
+  <script src="/js/audio.js?v=2.2.0"></script>
+  <script src="/js/speech_recognition.js?v=2.2.0"></script>
+  <script src="/js/controls.js?v=2.2.0"></script>
+  <script src="/js/skins.js?v=2.2.0"></script>
+  <script src="/js/player.js?v=2.2.0"></script>
+  <script src="/js/world.js?v=2.2.0"></script>
+  <script src="/js/world2.js?v=2.2.0"></script>
+  <script src="/js/challenges.js?v=2.2.0"></script>
+  <script src="/js/portal.js?v=2.2.0"></script>
+  <script src="/js/pix.js?v=2.2.0"></script>
+  <script src="/js/worlds_modal.js?v=2.2.0"></script>
+  <script src="/js/main.js?v=2.2.0"></script>
 </body>
 </html>
