@@ -665,8 +665,19 @@ window.closeParentsDashboard = function() {
   }
 };
 
-// Helper global para alternar / testar o estado de Acesso Vitalício (VIP Pro)
-window.setVipAccess = function(unlocked) {
+// Helper restrito para testes e homologação local de Acesso Vitalício
+window.setVipAccess = function(unlocked, devToken = null) {
+  const isLocalhost = window.location.hostname === 'localhost' || 
+                      window.location.hostname === '127.0.0.1' || 
+                      window.location.hostname === '';
+
+  // Trava de Produção: Impede que usuários comuns usem o console em produção para burlar o VIP
+  if (unlocked && !isLocalhost && devToken !== 'OBBY_DEV_2026') {
+    console.warn('🔒 [Segurança Comercial] Comando de console desabilitado em produção.');
+    console.warn('Para liberar o Acesso Vitalício, utilize o pagamento oficial via PIX (Luciano Sant Anna) ou Kiwify.');
+    return false;
+  }
+
   const isUnlocked = !!unlocked;
   if (window.gameStateManager) {
     window.gameStateManager.state.isProUnlocked = isUnlocked;

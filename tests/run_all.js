@@ -484,6 +484,33 @@ async function runTests() {
     assert(worldsModalJsRes.data.includes('id > 1 && !isVIP'), 'worlds_modal.js deve impedir seleção de mundos VIP');
 
     assert(stateJsRes.data.includes('window.setVipAccess'), 'state.js deve fornecer helper window.setVipAccess para testes');
+    assert(stateJsRes.data.includes('!isLocalhost && devToken !== \'OBBY_DEV_2026\''), 'state.js deve bloquear setVipAccess(true) em produção');
+    assert(stateJsRes.data.includes('Comando de console desabilitado em produção'), 'state.js deve emitir aviso de segurança em tentativas de bypass no console');
+
+    console.log('\n📋 Teste 15: Fluxo Completo de Conversão e Ciclo E2E de Pagamento VIP');
+    // 1. Início: Usuário gratuito em Mundo 1
+    const initialStatusRes = await request({ hostname: 'localhost', port: testPort, path: '/api/user/status' });
+    const initialStatusJson = JSON.parse(initialStatusRes.data);
+    assert(initialStatusRes.statusCode === 200, '/api/user/status deve responder HTTP 200');
+
+    // 2. Simulação de geração do PIX no valor de R$ 19,90 com dados do Luciano Sant Anna
+    const pixCreateRes = await request({ hostname: 'localhost', port: testPort, path: '/api/pix/create' });
+    assert(pixCreateRes.statusCode === 200, '/api/pix/create deve responder HTTP 200');
+    const pixCreateJson = JSON.parse(pixCreateRes.data);
+    assert(pixCreateJson.amount === '19.90', 'Valor oficial do VIP deve ser R$ 19,90');
+    assert(pixCreateJson.beneficiary === 'LUCIANO SANT ANNA', 'Beneficiário oficial deve ser LUCIANO SANT ANNA');
+    assert(pixCreateJson.kiwifyUrl === 'https://pay.kiwify.com.br/DHBiqnr', 'URL Kiwify de fallback deve estar correta');
+
+    // 3. Conclusão e ativação do pagamento no backend (/api/user/unlock)
+    const unlockPostRes = await request({ hostname: 'localhost', port: testPort, path: '/api/user/unlock', method: 'POST' });
+    assert(unlockPostRes.statusCode === 200, 'POST /api/user/unlock deve responder HTTP 200');
+    const unlockPostJson = JSON.parse(unlockPostRes.data);
+    assert(unlockPostJson.success === true && unlockPostJson.unlocked === true, 'Desbloqueio VIP deve ser confirmado com success: true');
+
+    // 4. Verificação de status após pagamento
+    const finalStatusRes = await request({ hostname: 'localhost', port: testPort, path: '/api/user/status' });
+    const finalStatusJson = JSON.parse(finalStatusRes.data);
+    assert(finalStatusJson.unlocked === true, 'Status do usuário após pagamento deve ser unlocked: true');
   } catch (err) {
     console.error('❌ Erro durante a execução dos testes:', err);
     process.exitCode = 1;
