@@ -5,7 +5,16 @@ class PixCheckout {
     this.copied = false;
     this.isCheckingPayment = false;
     this.isUnlocked = false;
-    this.pixCode = "00020126580014BR.GOV.BCB.PIX0136luciano.obby@gmail.com520400005303986540519.905802BR5925ROBLOX ENGLISH OBBY 3D6009FORTALEZA62070503***6304E2D1";
+    this.kiwifyUrl = 'https://pay.kiwify.com.br/DHBiqnr';
+    this.beneficiary = 'LUCIANO SANT ANNA';
+    this.pixKey = 'luciano.obby@gmail.com';
+    this.pixCode = this.generatePixPayload({
+      pixKey: this.pixKey,
+      name: this.beneficiary,
+      city: 'FORTALEZA',
+      amount: 19.90,
+      txId: 'OBBY1'
+    });
 
     this.checkStoredUnlockStatus();
     this.initEventListeners();
@@ -88,8 +97,8 @@ class PixCheckout {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           amount: 19.90,
-          pixKey: 'luciano.obby@gmail.com',
-          name: 'ROBLOX ENGLISH OBBY 3D',
+          pixKey: this.pixKey,
+          name: this.beneficiary,
           city: 'FORTALEZA'
         })
       });
@@ -98,11 +107,15 @@ class PixCheckout {
         this.pixCode = data.payloadPix;
         const qrImg = document.getElementById('pix-qr-img');
         if (qrImg) qrImg.src = data.qrCodeUrl;
+        const benEl = document.getElementById('pix-beneficiary-name');
+        if (benEl && data.beneficiary) {
+          benEl.textContent = 'Luciano Sant Anna';
+        }
       }
     } catch (e) {
       this.pixCode = this.generatePixPayload({
-        pixKey: 'luciano.obby@gmail.com',
-        name: 'ROBLOX ENGLISH OBBY 3D',
+        pixKey: this.pixKey,
+        name: this.beneficiary,
         city: 'FORTALEZA',
         amount: 19.90,
         txId: 'OBBY' + Math.floor(1000 + Math.random() * 9000)

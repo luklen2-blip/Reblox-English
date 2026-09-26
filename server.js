@@ -115,10 +115,11 @@ const server = http.createServer((req, res) => {
         }
 
         const pixKey = params.pixKey || 'luciano.obby@gmail.com';
-        const name = params.name || 'ROBLOX ENGLISH OBBY';
+        const name = params.name || 'LUCIANO SANT ANNA';
         const city = params.city || 'FORTALEZA';
         const amount = params.amount || 19.90;
         const txId = params.txId || 'OBBYKIDS' + Math.floor(1000 + Math.random() * 9000);
+        const kiwifyUrl = 'https://pay.kiwify.com.br/DHBiqnr';
 
         const payloadPix = generatePixPayload({ pixKey, name, city, amount, txId });
         const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(payloadPix)}`;
@@ -129,6 +130,8 @@ const server = http.createServer((req, res) => {
           amount: Number(amount).toFixed(2),
           pixKey,
           txId,
+          beneficiary: name,
+          kiwifyUrl,
           payloadPix,
           qrCodeUrl,
           description: 'Acesso Vitalício - Todos os Mundos de Inglês (Roblox Obby)'

@@ -140,8 +140,21 @@
         </div>
       </div>
 
-      <!-- Seção de Pagamento via PIX -->
+      <!-- Seção de Pagamento via Kiwify e PIX Oficial -->
       <div class="pix-actions">
+        <!-- Botão Oficial Kiwify (Cartão / PIX / Boleto) -->
+        <a href="https://pay.kiwify.com.br/DHBiqnr" target="_blank" rel="noopener noreferrer" class="btn-kiwify-pay" id="kiwify-pay-btn">
+          <span>🚀 Pagar R$ 19,90 no Kiwify (PIX / Cartão)</span>
+        </a>
+
+        <!-- Badge Favorecido Oficial -->
+        <div class="beneficiary-pill">
+          <span class="beneficiary-title">Favorecido Oficial:</span>
+          <strong id="pix-beneficiary-name">Luciano Sant Anna</strong>
+          <span class="beneficiary-key">(Chave PIX: luciano.obby@gmail.com)</span>
+        </div>
+
+        <!-- Botão Copiar Código PIX Copia e Cola -->
         <button id="copy-pix-btn" class="btn-pix-copy">
           ⚡ Pagar R$ 19,90 no PIX (Copia e Cola)
         </button>
@@ -157,6 +170,7 @@
         <div id="pix-qr-drawer">
           <img id="pix-qr-img" class="qr-img" src="" alt="QR Code PIX">
           <span style="font-size: 11px; color: #94a3b8; margin-top: 6px;">Aponte a câmera do aplicativo do seu banco</span>
+          <span style="font-size: 11px; color: #38bdf8; margin-top: 2px;">Favorecido: <b>Luciano Sant Anna</b></span>
         </div>
       </div>
 
@@ -191,9 +205,14 @@
       </div>
 
       <!-- Chamada para destravar caso não seja PRO -->
-      <button id="skin-modal-unlock-pro" class="btn-unlock-pro-skins">
-        ⚡ Desbloquear Todas as Skins por R$ 19,90
-      </button>
+      <div class="skin-modal-actions">
+        <a href="https://pay.kiwify.com.br/DHBiqnr" target="_blank" rel="noopener noreferrer" class="btn-kiwify-pay" style="font-size: 13px; padding: 12px 14px;">
+          🚀 Pagar R$ 19,90 no Kiwify (PIX / Cartão)
+        </a>
+        <button id="skin-modal-unlock-pro" class="btn-unlock-pro-skins">
+          ⚡ Ver Opções PIX (Favorecido: Luciano Sant Anna)
+        </button>
+      </div>
     </div>
   </div>
 

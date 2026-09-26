@@ -81,6 +81,18 @@ async function runTests() {
     assert(pixJson.payloadPix.startsWith('000201'), 'Payload PIX deve iniciar com 000201');
     assert(pixJson.payloadPix.includes('br.gov.bcb.pix'), 'Payload deve conter domínio oficial br.gov.bcb.pix');
     assert(pixJson.payloadPix.includes('6304'), 'Payload deve possuir tag de CRC 6304');
+    assert(pixJson.kiwifyUrl === 'https://pay.kiwify.com.br/DHBiqnr', 'API deve retornar link oficial do Kiwify');
+
+    // Validação de favorecido oficial padrão Luciano Sant Anna
+    const defaultPixRes = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/api/pix/create',
+      method: 'GET'
+    });
+    const defaultPixJson = JSON.parse(defaultPixRes.data);
+    assert(defaultPixJson.beneficiary === 'LUCIANO SANT ANNA', 'Beneficiário padrão oficial deve ser LUCIANO SANT ANNA');
+    assert(defaultPixJson.kiwifyUrl === 'https://pay.kiwify.com.br/DHBiqnr', 'Kiwify URL padrão deve ser https://pay.kiwify.com.br/DHBiqnr');
 
     // ================= TESTE 3: RESOLUÇÃO DE ARQUIVOS ESTÁTICOS =================
     console.log('\n📋 Teste 3: Resolução de Arquivos Estáticos e SPA Fallback');
@@ -92,6 +104,8 @@ async function runTests() {
     });
     assert(indexRes.statusCode === 200, 'Página raiz deve responder HTTP 200');
     assert(indexRes.data.includes('Roblox English Obby 3D'), 'HTML deve conter título da aplicação');
+    assert(indexRes.data.includes('https://pay.kiwify.com.br/DHBiqnr'), 'HTML deve conter link oficial do Kiwify');
+    assert(indexRes.data.includes('Luciano Sant Anna'), 'HTML deve exibir Luciano Sant Anna como favorecido oficial');
 
     const cssRes = await request({
       hostname: 'localhost',

@@ -68,6 +68,7 @@ async function runLiveTest() {
     }));
     const pixData = JSON.parse(pix.data);
     console.log(`   Status: HTTP ${pix.statusCode} | PIX Criado: ${pixData.success} | Payload CRC: ${pixData.payloadPix.slice(-4)}`);
+    console.log(`   Beneficiário: ${pixData.beneficiary} | Kiwify URL: ${pixData.kiwifyUrl}`);
 
     // 4. Termos e LGPD
     console.log('⚖️ 4. Testando rotas legais (/termos e /privacidade)...');
