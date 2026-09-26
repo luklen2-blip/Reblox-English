@@ -173,6 +173,11 @@ class KidSpeechRecognition {
   }
 
   triggerSuccess(word) {
+    // Adiciona palavra dominada ao histórico dos pais
+    if (window.gameStateManager) {
+      window.gameStateManager.addMasteredWord(word);
+    }
+
     // Feedback sonoro e comemoração
     if (window.audioManager) {
       window.audioManager.playSuccess();

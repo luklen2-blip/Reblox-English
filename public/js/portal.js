@@ -84,7 +84,8 @@ class PortalManager {
     this.activated = true;
 
     // Checa se o usuário já possui acesso vitalício salvo
-    const isUnlocked = localStorage.getItem('roblox_english_obby_unlocked') === 'true';
+    const isUnlocked = (window.userGameState && window.userGameState.isProUnlocked) ||
+                       localStorage.getItem('roblox_english_obby_unlocked') === 'true';
 
     // 1. Áudio e comemoração
     if (window.audioManager) {
@@ -112,8 +113,11 @@ class PortalManager {
     // 3. Trava de Conversão: CONGELA O BONECO
     this.player.isFrozen = true;
 
-    // 4. Abre o UnlockModal voltado aos pais
+    // 4. Abre o UnlockModal voltado aos pais atualizando as palavras aprendidas
     setTimeout(() => {
+      if (window.gameStateManager) {
+        window.gameStateManager.renderParentsVocab();
+      }
       const modal = document.getElementById('victory-modal');
       if (modal) {
         modal.classList.add('active');

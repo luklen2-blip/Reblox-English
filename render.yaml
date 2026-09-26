@@ -4,7 +4,7 @@ services:
     runtime: node
     plan: free
     region: oregon
-    buildCommand: npm test
+    buildCommand: npm install && npm test
     startCommand: node server.js
     healthCheckPath: /api/health
     autoDeploy: true
@@ -13,3 +13,5 @@ services:
         value: production
       - key: APP_NAME
         value: Roblox English Obby 3D
+      - key: PORT
+        value: 10000

@@ -71,8 +71,13 @@ class GameApp {
     const modal = document.getElementById('worlds-modal');
     if (modal) modal.classList.remove('active');
 
+    if (window.gameStateManager) {
+      window.gameStateManager.setWorld(worldId);
+    }
+
     if (worldId === 2) {
-      const isUnlocked = localStorage.getItem('roblox_english_obby_unlocked') === 'true';
+      const isUnlocked = (window.userGameState && window.userGameState.isProUnlocked) ||
+                         localStorage.getItem('roblox_english_obby_unlocked') === 'true';
 
       // Limpa Mundo 1
       if (this.world) { this.world.dispose(); this.world = null; }
@@ -205,6 +210,8 @@ class GameApp {
     const closeWorldsBtn = document.getElementById('close-worlds-modal-btn');
     const playWorld1Btn = document.getElementById('btn-play-world-1');
     const playWorld2Btn = document.getElementById('btn-play-world-2');
+    const card1 = document.getElementById('select-world-1-card');
+    const card2 = document.getElementById('select-world-2-card');
 
     if (worldsBtn && worldsModal) {
       worldsBtn.addEventListener('click', () => {
@@ -217,8 +224,6 @@ class GameApp {
         }
 
         // Destaca qual mundo está ativo
-        const card1 = document.getElementById('select-world-1-card');
-        const card2 = document.getElementById('select-world-2-card');
         if (card1 && card2) {
           if (this.currentWorldId === 1) {
             card1.classList.add('active-world');
@@ -396,6 +401,7 @@ class GameApp {
       if (z > -35 && !this.sectionAnnounced['sec1']) {
         this.sectionAnnounced['sec1'] = true;
         this.setWordHighlight('JUMP! 🦘', 'Salte pelas plataformas flutuantes');
+        if (window.gameStateManager) window.gameStateManager.addMasteredWord('Jump');
       }
 
       // Trecho 2: Desafio das cores
@@ -405,12 +411,14 @@ class GameApp {
         if (window.audioManager) {
           window.audioManager.speak('Step on BLUE!');
         }
+        if (window.gameStateManager) window.gameStateManager.addMasteredWord('Blue');
       }
 
       // Trecho 3: Coletáveis (Estrelas)
       if (z <= -48 && this.challenges && this.challenges.collectedCount < 3 && !this.sectionAnnounced['sec3']) {
         this.sectionAnnounced['sec3'] = true;
         this.setWordHighlight('STAR! ⭐', 'Colete as 3 estrelas douradas (One, Two, Three)');
+        if (window.gameStateManager) window.gameStateManager.addMasteredWord('Star');
       }
     } else if (this.currentWorldId === 2) {
       // Mundo 2 - Animal Safari Gatilhos
@@ -421,6 +429,7 @@ class GameApp {
         if (window.audioManager) {
           window.audioManager.speak('Look, the Lion! Can you roar like a lion? Roar!');
         }
+        if (window.gameStateManager) window.gameStateManager.addMasteredWord('Lion');
       }
 
       // Elefante
@@ -430,6 +439,7 @@ class GameApp {
         if (window.audioManager) {
           window.audioManager.speak('Look at the big gentle Elephant! Say Elephant!');
         }
+        if (window.gameStateManager) window.gameStateManager.addMasteredWord('Elephant');
       }
 
       // Macaco
@@ -439,6 +449,7 @@ class GameApp {
         if (window.audioManager) {
           window.audioManager.speak('The Monkey loves bananas! Say Monkey!');
         }
+        if (window.gameStateManager) window.gameStateManager.addMasteredWord('Monkey');
       }
     }
   }
@@ -458,6 +469,12 @@ class GameApp {
 
     // 1. Atualiza o jogador com colisões do mundo ativo
     if (this.player && window.inputManager) {
+      const isMoving = Math.hypot(window.inputManager.inputVector.x, window.inputManager.inputVector.z) > 0.1;
+      if (isMoving && window.gameStateManager && !this.hasRecordedWalk) {
+        this.hasRecordedWalk = true;
+        window.gameStateManager.addMasteredWord('Walk');
+      }
+
       this.player.update(
         delta,
         window.inputManager,

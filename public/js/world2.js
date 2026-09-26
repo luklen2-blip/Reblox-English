@@ -575,6 +575,11 @@ class World2SafariManager {
     this.collectedCount++;
     this.environmentGroup.remove(item.mesh);
 
+    if (window.gameStateManager) {
+      window.gameStateManager.addStar(1);
+      window.gameStateManager.addMasteredWord('Banana');
+    }
+
     if (window.audioManager) {
       window.audioManager.playCollect();
       window.audioManager.speak(item.spokenWord);
@@ -597,6 +602,13 @@ class World2SafariManager {
 
   triggerSafariVictory() {
     this.safariVictoryTriggered = true;
+
+    if (window.gameStateManager) {
+      window.gameStateManager.addMasteredWord('Lion');
+      window.gameStateManager.addMasteredWord('Elephant');
+      window.gameStateManager.addMasteredWord('Monkey');
+      window.gameStateManager.addMasteredWord('Banana');
+    }
 
     if (window.audioManager) {
       window.audioManager.playFanfare();

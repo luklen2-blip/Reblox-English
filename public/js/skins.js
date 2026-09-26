@@ -14,7 +14,8 @@ window.SKINS = SKINS;
 class SkinManager {
   constructor() {
     this.skins = SKINS;
-    this.currentSkinId = localStorage.getItem('roblox_english_obby_skin') || 'default';
+    this.currentSkinId = (window.userGameState && window.userGameState.selectedSkin) ||
+                         localStorage.getItem('roblox_english_obby_skin') || 'default';
     this.modal = document.getElementById('skin-shop-modal');
 
     this.initEventListeners();
@@ -22,7 +23,8 @@ class SkinManager {
   }
 
   get isProUnlocked() {
-    return localStorage.getItem('roblox_english_obby_unlocked') === 'true' ||
+    return (window.userGameState && window.userGameState.isProUnlocked) ||
+           localStorage.getItem('roblox_english_obby_unlocked') === 'true' ||
            (window.pixCheckout && window.pixCheckout.isUnlocked);
   }
 
@@ -84,7 +86,11 @@ class SkinManager {
     }
 
     this.currentSkinId = skin.id;
-    localStorage.setItem('roblox_english_obby_skin', skin.id);
+    if (window.gameStateManager) {
+      window.gameStateManager.setSkin(skin.id);
+    } else {
+      localStorage.setItem('roblox_english_obby_skin', skin.id);
+    }
 
     // Aplica no personagem 3D
     if (window.player && typeof window.player.applySkin === 'function') {

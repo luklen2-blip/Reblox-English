@@ -3,5 +3,7 @@ node_modules/
 *.log
 .system_generated/
 scratch/
+bin/
+*.exe
 .DS_Store
 Thumbs.db

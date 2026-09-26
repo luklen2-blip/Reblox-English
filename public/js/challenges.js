@@ -92,6 +92,11 @@ class ChallengesManager {
     if (colorId === 'BLUE') {
       this.colorChallengeCompleted = true;
 
+      // Adiciona palavra dominada ao estado do jogo
+      if (window.gameStateManager) {
+        window.gameStateManager.addMasteredWord('Blue');
+      }
+
       // Efeito sonoro alegre e fala comemorativa
       if (window.audioManager) {
         window.audioManager.playSuccess();
@@ -116,6 +121,10 @@ class ChallengesManager {
       }
     } else {
       // PISOU NO ERRADO: Reinicia o trecho 2 suavemente (teleporte suave para o início do trecho 2)
+      if (window.gameStateManager) {
+        window.gameStateManager.addMasteredWord('Red');
+      }
+
       const now = Date.now();
       if (now - this.lastWrongTime > 1200) {
         this.lastWrongTime = now;
@@ -166,6 +175,12 @@ class ChallengesManager {
     if (window.audioManager) {
       window.audioManager.playCollect();
       window.audioManager.speak(item.spokenWord);
+    }
+
+    // Atualiza estado central
+    if (window.gameStateManager) {
+      window.gameStateManager.addStar(1);
+      window.gameStateManager.addMasteredWord('Star');
     }
 
     // Atualiza HUD superior em destaque com a palavra e contador

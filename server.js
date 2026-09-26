@@ -6,6 +6,13 @@ let PORT = parseInt(process.env.PORT, 10) || 3000;
 const APP_NAME = process.env.APP_NAME || 'Roblox English Obby 3D';
 const VERSION = '2.0.0';
 let globalUserUnlocked = false;
+let globalUserState = {
+  isProUnlocked: false,
+  currentWorld: 1,
+  selectedSkin: 'default',
+  collectedStars: 3,
+  wordsMastered: ['Walk', 'Jump', 'Blue', 'Red', 'Star']
+};
 
 // Gerador oficial de Payload Pix EMV (Bacen) com CRC-16
 function generatePixPayload({ pixKey, name, city, amount, txId = 'OBBY1' }) {
@@ -134,9 +141,9 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // 3. Persistência de Desbloqueio Vitalício do Usuário
+  // 3. Persistência de Desbloqueio e Estado do Jogo do Usuário
   if (pathname === '/api/user/status' && req.method === 'GET') {
-    const isUnlocked = globalUserUnlocked || false;
+    const isUnlocked = globalUserUnlocked || (globalUserState && globalUserState.isProUnlocked) || false;
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({ unlocked: isUnlocked }));
     return;
@@ -144,8 +151,37 @@ const server = http.createServer((req, res) => {
 
   if (pathname === '/api/user/unlock' && req.method === 'POST') {
     globalUserUnlocked = true;
+    globalUserState.isProUnlocked = true;
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({ success: true, unlocked: true, message: 'Acesso Vitalício Ativado!' }));
+    return;
+  }
+
+  if (pathname === '/api/user/state' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ success: true, state: globalUserState }));
+    return;
+  }
+
+  if (pathname === '/api/user/state' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const parsed = JSON.parse(body || '{}');
+        if (parsed.state) {
+          globalUserState = { ...globalUserState, ...parsed.state };
+          if (globalUserState.isProUnlocked) {
+            globalUserUnlocked = true;
+          }
+        }
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ success: true, state: globalUserState }));
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ success: false, error: e.message }));
+      }
+    });
     return;
   }
 

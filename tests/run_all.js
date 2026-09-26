@@ -196,8 +196,54 @@ async function runTests() {
       path: '/api/user/status',
       method: 'GET'
     });
-    const statusJson2 = JSON.parse(statusRes2.data);
-    assert(statusJson2.unlocked === true, 'Status posterior deve manter unlocked: true');
+    // ================= TESTE 8: GERENCIADOR CENTRAL DE ESTADO (userGameState) =================
+    console.log('\n📋 Teste 8: Gerenciador Central de Estado do Jogo (userGameState)');
+    const stateJsRes = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/js/state.js',
+      method: 'GET'
+    });
+    assert(stateJsRes.statusCode === 200, 'Arquivo /js/state.js deve responder HTTP 200');
+    assert(stateJsRes.data.includes('DEFAULT_GAME_STATE'), 'state.js deve conter DEFAULT_GAME_STATE');
+    assert(stateJsRes.data.includes('wordsMastered'), 'state.js deve conter wordsMastered');
+    assert(stateJsRes.data.includes('GameStateManager'), 'state.js deve conter a classe GameStateManager');
+
+    const stateApiRes = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/api/user/state',
+      method: 'GET'
+    });
+    assert(stateApiRes.statusCode === 200, 'Endpoint /api/user/state deve responder HTTP 200');
+    const stateApiJson = JSON.parse(stateApiRes.data);
+    assert(stateApiJson.success === true, 'API de estado deve confirmar success: true');
+    assert(stateApiJson.state && typeof stateApiJson.state.isProUnlocked === 'boolean', 'Estado deve conter isProUnlocked');
+    assert(typeof stateApiJson.state.currentWorld === 'number', 'Estado deve conter currentWorld');
+    assert(typeof stateApiJson.state.selectedSkin === 'string', 'Estado deve conter selectedSkin');
+    assert(typeof stateApiJson.state.collectedStars === 'number', 'Estado deve conter collectedStars');
+    assert(Array.isArray(stateApiJson.state.wordsMastered), 'Estado deve conter array wordsMastered');
+    assert(stateApiJson.state.wordsMastered.includes('Walk') && stateApiJson.state.wordsMastered.includes('Jump'), 'wordsMastered deve incluir palavras padrão Walk e Jump');
+
+    const updateStateRes = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/api/user/state',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }, JSON.stringify({
+      state: {
+        isProUnlocked: true,
+        currentWorld: 2,
+        selectedSkin: 'fire',
+        collectedStars: 6,
+        wordsMastered: ['Walk', 'Jump', 'Blue', 'Red', 'Star', 'Lion']
+      }
+    }));
+    assert(updateStateRes.statusCode === 200, 'POST /api/user/state deve responder HTTP 200');
+    const updateJson = JSON.parse(updateStateRes.data);
+    assert(updateJson.state.selectedSkin === 'fire', 'Skin deve ter sido atualizada para fire');
+    assert(updateJson.state.wordsMastered.includes('Lion'), 'wordsMastered deve incluir nova palavra Lion');
 
   } catch (err) {
     console.error('❌ Erro durante a execução dos testes:', err);

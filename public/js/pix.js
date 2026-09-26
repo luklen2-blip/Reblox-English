@@ -14,7 +14,8 @@ class PixCheckout {
 
   async checkStoredUnlockStatus() {
     // 1. Checa persistência local no navegador
-    const local = localStorage.getItem('roblox_english_obby_unlocked') === 'true';
+    const local = (window.userGameState && window.userGameState.isProUnlocked) ||
+                  localStorage.getItem('roblox_english_obby_unlocked') === 'true';
     if (local) {
       this.isUnlocked = true;
       this.applyVipUI();
@@ -222,13 +223,15 @@ class PixCheckout {
   onPaymentSuccess() {
     this.isUnlocked = true;
 
-    // 1. Salva o estado de liberação localmente de forma vitalícia
-    localStorage.setItem('roblox_english_obby_unlocked', 'true');
+    // 1. Salva o estado de liberação localmente no userGameState e nuvem
+    if (window.gameStateManager) {
+      window.gameStateManager.unlockPro();
+    } else {
+      localStorage.setItem('roblox_english_obby_unlocked', 'true');
+      fetch('/api/user/unlock', { method: 'POST' }).catch(() => {});
+    }
 
-    // 2. Notifica o backend
-    fetch('/api/user/unlock', { method: 'POST' }).catch(() => {});
-
-    // 3. Aplica UI VIP e descongela o boneco
+    // 2. Aplica UI VIP e descongela o boneco
     this.applyVipUI();
     if (window.player) {
       window.player.isFrozen = false;
