@@ -471,8 +471,19 @@ async function runTests() {
     assert(spaceStateJson.state.badges.includes('space_master'), 'API deve persistir space_master');
     assert(spaceStateJson.state.wordStats.Rocket.correct === 3, 'API deve persistir estatísticas da palavra Rocket');
 
+    console.log('\n📋 Teste 14: Trava Comercial de Mundos Vitalícios (Paywall VIP para Mundos 2, 3 e 4)');
+    const mainJsRes = await request({ hostname: 'localhost', port: testPort, path: '/js/main.js' });
+    assert(mainJsRes.statusCode === 200, 'Arquivo /js/main.js deve responder HTTP 200');
+    assert(mainJsRes.data.includes('worldId > 1 && !isUnlocked'), 'main.js deve bloquear mundos 2, 3 e 4 se !isUnlocked');
+    assert(mainJsRes.data.includes('document.getElementById(\'victory-modal\')'), 'main.js deve acionar victory-modal (paywall) no bloqueio');
 
+    const worldsModalJsRes = await request({ hostname: 'localhost', port: testPort, path: '/js/worlds_modal.js' });
+    assert(worldsModalJsRes.statusCode === 200, 'Arquivo /js/worlds_modal.js deve responder HTTP 200');
+    assert(worldsModalJsRes.data.includes('isVIPUnlocked()'), 'worlds_modal.js deve implementar checagem isVIPUnlocked');
+    assert(worldsModalJsRes.data.includes('btn-play-locked'), 'worlds_modal.js deve estilizar mundos bloqueados com btn-play-locked');
+    assert(worldsModalJsRes.data.includes('id > 1 && !isVIP'), 'worlds_modal.js deve impedir seleção de mundos VIP');
 
+    assert(stateJsRes.data.includes('window.setVipAccess'), 'state.js deve fornecer helper window.setVipAccess para testes');
   } catch (err) {
     console.error('❌ Erro durante a execução dos testes:', err);
     process.exitCode = 1;

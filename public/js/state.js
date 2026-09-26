@@ -665,3 +665,23 @@ window.closeParentsDashboard = function() {
   }
 };
 
+// Helper global para alternar / testar o estado de Acesso Vitalício (VIP Pro)
+window.setVipAccess = function(unlocked) {
+  const isUnlocked = !!unlocked;
+  if (window.gameStateManager) {
+    window.gameStateManager.state.isProUnlocked = isUnlocked;
+    window.gameStateManager.save();
+  }
+  if (window.userGameState) {
+    window.userGameState.isProUnlocked = isUnlocked;
+  }
+  if (isUnlocked) {
+    localStorage.setItem('roblox_english_obby_unlocked', 'true');
+  } else {
+    localStorage.removeItem('roblox_english_obby_unlocked');
+  }
+  console.log(`👑 Acesso Vitalício alterado para: ${isUnlocked ? 'LIBERADO' : 'BLOQUEADO'}`);
+  if (window.skinManager) window.skinManager.renderSkinGrid();
+  return isUnlocked;
+};
+

@@ -11,27 +11,32 @@ class WorldsModalManager {
     this.bindEvents();
   }
 
+  isVIPUnlocked() {
+    return (window.userGameState && window.userGameState.isProUnlocked === true) ||
+           (window.gameStateManager && window.gameStateManager.state && window.gameStateManager.state.isProUnlocked === true) ||
+           localStorage.getItem('roblox_english_obby_unlocked') === 'true';
+  }
+
   open() {
     this.modal = this.modal || document.getElementById('worlds-modal');
     if (!this.modal) return;
 
-    // Atualiza status do Mundo 2, 3 e 4 se VIP
-    const isVIP = localStorage.getItem('roblox_english_obby_unlocked') === 'true';
-    const tag2 = document.getElementById('world-2-status-tag');
-    if (tag2) {
-      tag2.textContent = isVIP ? 'LIBERADO 👑' : 'VIP VITALÍCIO 👑';
-      tag2.className = isVIP ? 'world-card-tag world-tag-free' : 'world-card-tag world-tag-vip';
-    }
-    const tag3 = document.getElementById('world-3-status-tag');
-    if (tag3) {
-      tag3.textContent = isVIP ? 'LIBERADO 👑' : 'VIP VITALÍCIO 👑';
-      tag3.className = isVIP ? 'world-card-tag world-tag-free' : 'world-card-tag world-tag-vip';
-    }
-    const tag4 = document.getElementById('world-4-status-tag');
-    if (tag4) {
-      tag4.textContent = isVIP ? 'LIBERADO 👑' : 'VIP VITALÍCIO 👑';
-      tag4.className = isVIP ? 'world-card-tag world-tag-free' : 'world-card-tag world-tag-vip';
-    }
+    // Atualiza status e botões dos Mundos 2, 3 e 4 de acordo com o Acesso Vitalício
+    const isVIP = this.isVIPUnlocked();
+
+    const worldNames = { 2: 'Safari', 3: 'Cozinha', 4: 'Espaço' };
+    [2, 3, 4].forEach(worldNum => {
+      const tag = document.getElementById(`world-${worldNum}-status-tag`);
+      const btn = document.getElementById(`btn-play-world-${worldNum}`);
+      if (tag) {
+        tag.textContent = isVIP ? 'LIBERADO 👑' : '🔒 VIP VITALÍCIO';
+        tag.className = isVIP ? 'world-card-tag world-tag-free' : 'world-card-tag world-tag-vip';
+      }
+      if (btn) {
+        btn.textContent = isVIP ? `Explorar ${worldNames[worldNum]}` : '🔒 Desbloquear (R$ 19,90)';
+        btn.className = isVIP ? 'btn-play-world' : 'btn-play-world btn-play-locked';
+      }
+    });
 
     // Destaca qual mundo está ativo
     const currentId = (window.gameApp && window.gameApp.currentWorldId) || 1;
@@ -61,6 +66,21 @@ class WorldsModalManager {
   }
 
   selectWorld(id) {
+    const isVIP = this.isVIPUnlocked();
+
+    // Trava de Segurança Comercial: Mundos 2, 3 e 4 exigem Acesso Vitalício
+    if (id > 1 && !isVIP) {
+      console.warn(`🔒 Mundo ${id} bloqueado: requer Acesso Vitalício (R$ 19,90).`);
+      this.close();
+      if (window.audioManager) {
+        window.audioManager.playTryAgain();
+        window.audioManager.speak("Unlock all worlds with Lifetime Pro!");
+      }
+      const victoryModal = document.getElementById('victory-modal');
+      if (victoryModal) victoryModal.classList.add('active');
+      return;
+    }
+
     console.log(`🌍 WorldsModalManager: Alternando para Mundo ${id}...`);
     this.close();
 
