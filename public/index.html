@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Roblox English Obby 3D - Aprenda Inglês Brincando</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌈</text></svg>">
+</head>
+<body>
+  <!-- Canvas 3D do Three.js -->
+  <div id="canvas-container"></div>
+
+  <!-- HUD Superior Limpo Infantil -->
+  <div id="hud">
+    <div class="hud-top-bar">
+      <!-- Contador de Estrelas Coletadas & Badge VIP -->
+      <div class="hud-left">
+        <div class="collectibles-badge">
+          <span class="star-pulse">⭐</span>
+          <span id="collectibles-counter">0/3</span>
+        </div>
+        <div id="vip-badge" class="vip-badge" style="display: none;">
+          👑 VIP VITALÍCIO
+        </div>
+      </div>
+
+      <!-- Card Central da Palavra Atual em Destaque -->
+      <div class="word-card" id="word-card">
+        <div class="word-card-header">
+          <span class="word-label">CURRENT WORD</span>
+          <div class="word-btn-group">
+            <button id="repeat-word-btn" class="speak-repeat-btn" title="Ouvir a pronúncia em inglês novamente">
+              🔊 <span class="pronounce-txt">REPEAT</span>
+            </button>
+            <button id="hud-speak-btn" class="speak-repeat-btn hud-speak-btn" title="Fale no microfone para aprender inglês!">
+              🎤 <span class="pronounce-txt">SPEAK</span>
+            </button>
+          </div>
+        </div>
+        <div class="word-display" id="current-word">JUMP!</div>
+        <div class="word-mission" id="mission-subtext">Salte pelas plataformas flutuantes</div>
+      </div>
+
+      <!-- Ações do HUD -->
+      <div class="hud-right">
+        <button class="hud-btn hud-worlds-btn" id="worlds-btn" title="Explorar Mundos (World 1: Rainbow, World 2: Safari)">🌍</button>
+        <button class="hud-btn hud-skin-btn" id="skin-shop-btn" title="Personalizar Avatar / Loja de Roupas e Chapéus">👕</button>
+        <button class="hud-btn" id="respawn-btn" title="Voltar ao início da plataforma segura">🔁</button>
+        <button class="hud-btn" id="mute-btn" title="Ativar ou desativar áudio">🔊</button>
+        <button class="hud-btn" id="fullscreen-btn" title="Modo tela cheia">⛶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aviso de Modo Paisagem no Celular/Tablet -->
+  <div id="rotate-hint-overlay" class="rotate-hint-overlay">
+    <div class="rotate-hint-box">
+      <div class="rotate-icon">🔄</div>
+      <h3>Gire para o Modo Paisagem</h3>
+      <p>Para a melhor experiência no celular, segure o aparelho na horizontal (paisagem).</p>
+      <button id="dismiss-rotate-hint" class="dismiss-hint-btn">Entendi, continuar</button>
+    </div>
+  </div>
+
+  <!-- Balão de Aprendizado de Vocabulário Flutuante -->
+  <div id="word-bubble">🗣️ "Jump!"</div>
+
+  <!-- Instruções para PC / Desktop -->
+  <div id="desktop-hint">
+    <span>⌨️ <b>WASD</b> ou <b>Setas</b> para andar</span>
+    <span>•</span>
+    <span>🚀 <b>Espaço</b> para pular</span>
+    <span>•</span>
+    <span>🖱️ <b>Arraste o Mouse</b> para girar a câmera</span>
+  </div>
+
+  <!-- Controles Virtuais Touch (Mobile / Tablet) -->
+  <div id="mobile-controls">
+    <!-- Joystick Virtual (Canto Inferior Esquerdo) -->
+    <div id="joystick-zone">
+      <div id="joystick-base">
+        <div id="joystick-knob"></div>
+      </div>
+    </div>
+
+    <!-- Botão Grande de Pulo (Canto Inferior Direito) -->
+    <button id="jump-btn" aria-label="Pular">
+      🚀
+      <span>JUMP!</span>
+    </button>
+  </div>
+
+  <!-- Modal de Vitória e Conversão dos Pais (React UnlockModal Theme) -->
+  <div class="modal-overlay" id="victory-modal">
+    <div class="modal-card">
+      <!-- Botão Fechar -->
+      <button class="close-modal-btn" id="close-modal-btn" aria-label="Fechar">✕</button>
+
+      <!-- Topo: Celebração para a Criança -->
+      <div class="modal-trophy">🏆</div>
+      <h2 class="modal-title">Level 1 Complete!</h2>
+      <p class="modal-subtitle">✨ You are awesome! 5 novas palavras aprendidas!</p>
+
+      <!-- Cartão de Vocabulário Aprendido (Interativo com Áudio) -->
+      <div class="vocab-box">
+        <div class="vocab-title">5+ Palavras Dominadas Hoje (Toque para ouvir):</div>
+        <div class="vocab-tags">
+          <div class="vocab-tag" data-word="Jump! Great jumping!">🦘 JUMP <span>🔊</span></div>
+          <div class="vocab-tag" data-word="Blue! The color blue!">🟦 BLUE <span>🔊</span></div>
+          <div class="vocab-tag" data-word="Star! Beautiful golden star!">⭐ STAR <span>🔊</span></div>
+          <div class="vocab-tag" data-word="One! Number one!">1️⃣ ONE <span>🔊</span></div>
+          <div class="vocab-tag" data-word="Two! Number two!">2️⃣ TWO <span>🔊</span></div>
+          <div class="vocab-tag" data-word="Three! Number three!">3️⃣ THREE <span>🔊</span></div>
+        </div>
+      </div>
+
+      <!-- Divisor Visual -->
+      <div class="modal-divider"></div>
+
+      <!-- Área dos Pais -->
+      <div class="parents-area">
+        <div class="parents-badge-row">
+          <span class="parents-badge">Área dos Pais</span>
+          <span class="parents-tagline">Acesso Vitalício Completo</span>
+        </div>
+
+        <ul class="parents-features">
+          <li><span class="parents-check">✓</span> +4 Novos Mundos 3D temáticos (+80 palavras)</li>
+          <li><span class="parents-check">✓</span> Loja de skins, roupas e chapéus para o avatar</li>
+          <li><span class="parents-check">✓</span> Jogue direto no Computador ou Celular</li>
+          <li><span class="parents-check">✓</span> Sem mensalidade nem anúncios</li>
+        </ul>
+
+        <div class="parents-price-row">
+          <span class="parents-price-label">Valor único promocional:</span>
+          <span class="parents-price-value">R$ 19,90</span>
+        </div>
+      </div>
+
+      <!-- Seção de Pagamento via PIX -->
+      <div class="pix-actions">
+        <button id="copy-pix-btn" class="btn-pix-copy">
+          ⚡ Pagar R$ 19,90 no PIX (Copia e Cola)
+        </button>
+
+        <button id="simulate-pay-btn" class="btn-simulate-pay">
+          Já fiz o pagamento (Liberar Acesso)
+        </button>
+
+        <!-- Toggle opcional para escanear QR Code em desktop -->
+        <button id="toggle-qr-btn" class="qr-toggle-btn">
+          📱 Prefere ler o QR Code no celular? Clique aqui
+        </button>
+        <div id="pix-qr-drawer">
+          <img id="pix-qr-img" class="qr-img" src="" alt="QR Code PIX">
+          <span style="font-size: 11px; color: #94a3b8; margin-top: 6px;">Aponte a câmera do aplicativo do seu banco</span>
+        </div>
+      </div>
+
+      <p class="modal-notice">
+        Pagamento seguro processado instantaneamente. Liberação imediata em todos os aparelhos.
+      </p>
+
+      <!-- Rodapé Legal e Indicativo -->
+      <div class="modal-footer-links">
+        <a href="/termos" target="_blank">Termos de Uso</a>
+        <span>•</span>
+        <a href="/privacidade" target="_blank">Política de Privacidade (LGPD)</a>
+        <span>•</span>
+        <span>Classificação: Livre</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Skins / Avatar Wardrobe (React SkinShopModal Theme) -->
+  <div class="modal-overlay" id="skin-shop-modal">
+    <div class="modal-card skin-shop-card">
+      <!-- Fechar -->
+      <button class="close-modal-btn" id="close-skin-shop-btn" aria-label="Fechar">✕</button>
+
+      <!-- Cabeçalho -->
+      <h2 class="skin-shop-title"><span>🧢</span> Avatar Wardrobe</h2>
+      <p class="skin-shop-subtitle">Personalize seu avatar com acessórios épicos!</p>
+
+      <!-- Grid de Skins -->
+      <div class="skin-grid" id="skin-grid">
+        <!-- Gerado dinamicamente por skins.js -->
+      </div>
+
+      <!-- Chamada para destravar caso não seja PRO -->
+      <button id="skin-modal-unlock-pro" class="btn-unlock-pro-skins">
+        ⚡ Desbloquear Todas as Skins por R$ 19,90
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal de Seleção de Mundos (World Selector) -->
+  <div class="modal-overlay" id="worlds-modal">
+    <div class="modal-card worlds-modal-card">
+      <button class="close-modal-btn" id="close-worlds-modal-btn" aria-label="Fechar">✕</button>
+      <h2 class="worlds-modal-title"><span>🌍</span> Escolha o Mundo</h2>
+      <p class="worlds-modal-subtitle">Aprenda inglês em mapas 3D temáticos incríveis!</p>
+
+      <div class="worlds-grid">
+        <!-- Card Mundo 1 -->
+        <div class="world-choice-card active-world" id="select-world-1-card">
+          <div class="world-card-icon">🌈</div>
+          <div class="world-card-info">
+            <div class="world-card-name">World 1: Rainbow Bridge</div>
+            <div class="world-card-desc">Cores (Blue/Red/Green), Saltos e Estrelas Douradas!</div>
+            <span class="world-card-tag world-tag-free">LIBERADO ✓</span>
+          </div>
+          <button class="btn-play-world" id="btn-play-world-1">Jogar Agora</button>
+        </div>
+
+        <!-- Card Mundo 2 -->
+        <div class="world-choice-card" id="select-world-2-card">
+          <div class="world-card-icon">🦁</div>
+          <div class="world-card-info">
+            <div class="world-card-name">World 2: Animal Safari</div>
+            <div class="world-card-desc">Leão, Elefante, Macaco e Bananas na Savana 3D!</div>
+            <span class="world-card-tag world-tag-vip" id="world-2-status-tag">VIP VITALÍCIO 👑</span>
+          </div>
+          <button class="btn-play-world" id="btn-play-world-2">Explorar Safari</button>
+        </div>
+
+        <!-- Card Mundo 3 -->
+        <div class="world-choice-card world-locked">
+          <div class="world-card-icon">🍎</div>
+          <div class="world-card-info">
+            <div class="world-card-name">World 3: Kitchen & Fruits</div>
+            <div class="world-card-desc">Maçãs, bananas, pães, sucos e itens deliciosos.</div>
+            <span class="world-card-tag world-tag-soon">EM BREVE</span>
+          </div>
+          <button class="btn-play-world btn-disabled" disabled>Em Breve</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bibliotecas Externas com Fallbacks -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Módulos da Aplicação -->
+  <script src="/js/audio.js"></script>
+  <script src="/js/speech_recognition.js"></script>
+  <script src="/js/controls.js"></script>
+  <script src="/js/skins.js"></script>
+  <script src="/js/player.js"></script>
+  <script src="/js/world.js"></script>
+  <script src="/js/world2.js"></script>
+  <script src="/js/challenges.js"></script>
+  <script src="/js/portal.js"></script>
+  <script src="/js/pix.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html>

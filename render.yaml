@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: roblox-english-obby
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm test
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: APP_NAME
+        value: Roblox English Obby 3D

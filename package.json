@@ -1,0 +1,25 @@
+{
+  "name": "roblox-english-obby",
+  "version": "2.0.0",
+  "description": "Roblox English Obby 3D - Jogo educativo interativo para crianças aprenderem inglês",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node tests/run_all.js",
+    "build:zip": "node scripts/create_deploy_zip.js"
+  },
+  "keywords": [
+    "threejs",
+    "education",
+    "kids",
+    "english",
+    "3d",
+    "obby",
+    "roblox-style",
+    "pix",
+    "saas"
+  ],
+  "author": "Luciano",
+  "license": "MIT"
+}
