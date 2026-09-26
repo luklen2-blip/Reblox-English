@@ -668,3 +668,19 @@ if (document.readyState === 'loading') {
 } else {
   bootGame();
 }
+
+// Acessibilidade: Tecla ESC fecha qualquer modal ou sobreposição ativa
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' || e.code === 'Escape') {
+    if (window.quizManager) window.quizManager.close();
+    if (window.worldsModal) window.worldsModal.close();
+    if (window.skinManager) window.skinManager.close();
+    if (typeof window.closeStudentDashboard === 'function') window.closeStudentDashboard();
+    if (typeof window.closeParentsDashboard === 'function') window.closeParentsDashboard();
+    if (window.kidSpeech) window.kidSpeech.stopListening();
+    const unlockModal = document.getElementById('unlock-modal');
+    if (unlockModal) unlockModal.classList.remove('active');
+    const victoryModal = document.getElementById('victory-modal');
+    if (victoryModal) victoryModal.classList.remove('active');
+  }
+});

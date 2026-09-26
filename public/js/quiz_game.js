@@ -1,4 +1,4 @@
-﻿// quiz_game.js - Mini-Jogo Educativo: Quiz de Voz e Memória Auditiva em Inglês
+// quiz_game.js - Mini-Jogo Educativo: Quiz de Voz e Memória Auditiva em Inglês
 
 class VoiceQuizManager {
   constructor() {
@@ -183,9 +183,21 @@ class VoiceQuizManager {
     const targetWord = this.currentQuestion.target.word;
 
     if (window.kidSpeech) {
-      window.kidSpeech.listenForWord(targetWord, (spoken) => {
-        this.handleAnswer(true, spoken);
-      });
+      window.kidSpeech.listenForWord(
+        targetWord,
+        (spoken) => {
+          // Validação estrita confirmando a palavra-alvo
+          const isCorrect = (spoken || '').toLowerCase().trim() === targetWord.toLowerCase().trim();
+          this.handleAnswer(isCorrect, spoken);
+        },
+        (errorOrSpoken) => {
+          const feedbackBox = document.getElementById('quiz-feedback-box');
+          if (feedbackBox) {
+            feedbackBox.className = 'quiz-feedback-box wrong';
+            feedbackBox.textContent = `🎤 Pronúncia: "${errorOrSpoken || '...'}" - Tente dizer "${targetWord}"!`;
+          }
+        }
+      );
     }
   }
 }

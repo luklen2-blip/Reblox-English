@@ -1,4 +1,4 @@
-﻿// world4.js - Mundo 4: "Space Adventure 3D" (Aventura Espacial, Planetas, Gravidade e Vocabulário)
+// world4.js - Mundo 4: "Space Adventure 3D" (Aventura Espacial, Planetas, Gravidade e Vocabulário)
 
 class World4SpaceManager {
   constructor(scene, player) {
@@ -556,13 +556,35 @@ class World4SpaceManager {
     }
 
     setTimeout(() => {
-      alert("🎉 PARABÉNS! SPACE ADVENTURE COMPLETO! 🚀🌙🪐\n\nVocê aprendeu as palavras ROCKET, MOON e PLANET!");
-      this.spaceVictoryTriggered = false;
+      // Reposiciona o jogador suavemente para a plataforma inicial
+      if (this.player) {
+        this.player.position.set(0, 3.5, 0);
+        this.player.velocity.set(0, 0, 0);
+        if (this.player.mesh) this.player.mesh.position.copy(this.player.position);
+      }
+      // Mantém a trava ativa durante esta sessão para impedir re-disparos e duplicação de moedas/XP
+      this.spaceVictoryTriggered = true;
     }, 1200);
   }
 
   dispose() {
-    this.scene.remove(this.environmentGroup);
+    if (this.environmentGroup) {
+      this.environmentGroup.traverse((obj) => {
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+          if (Array.isArray(obj.material)) {
+            obj.material.forEach(m => {
+              if (m.map) m.map.dispose();
+              m.dispose();
+            });
+          } else {
+            if (obj.material.map) obj.material.map.dispose();
+            obj.material.dispose();
+          }
+        }
+      });
+      this.scene.remove(this.environmentGroup);
+    }
     this.platforms = [];
     this.spaceObjects = [];
     this.collectibles = [];

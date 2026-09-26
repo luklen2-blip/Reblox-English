@@ -81,9 +81,10 @@ class KidSpeechRecognition {
     }
   }
 
-  listenForWord(word, onSuccess) {
-    this.targetWord = (word || '').replace(/[!⭐🟦🦘🌀🦁🐘🐒🍌]/g, '').trim().toUpperCase();
+  listenForWord(word, onSuccess, onError) {
+    this.targetWord = (word || '').replace(/[^\w\s-]/g, '').trim().toUpperCase();
     this.onSuccessCallback = onSuccess;
+    this.onErrorCallback = onError;
 
     const overlay = document.getElementById('speech-overlay');
     const targetDisplay = document.getElementById('speech-target-display');
@@ -143,10 +144,12 @@ class KidSpeechRecognition {
     console.log(`🎤 Criança falou: "${spoken}" | Alvo esperado: "${this.targetWord}"`);
     const cleanTarget = this.targetWord.toLowerCase();
 
-    // Dicionário de variantes fonéticas e aproximações infantis comuns
+    // Dicionário de variantes fonéticas e aproximações infantis comuns (Mundos 1, 2, 3 e 4)
     const phoneticMap = {
       'jump': ['jump', 'jamp', 'jonp', 'djump', 'jum', 'pular'],
+      'walk': ['walk', 'uoc', 'uok', 'wok', 'ualke', 'andar'],
       'blue': ['blue', 'bloo', 'blu', 'blew', 'azul'],
+      'red': ['red', 'ued', 'rede', 'redy', 'vermelho'],
       'star': ['star', 'sta', 'stor', 'estrela'],
       'one': ['one', 'wan', 'won', 'um'],
       'two': ['two', 'tu', 'too', 'to', 'dois'],
@@ -154,7 +157,13 @@ class KidSpeechRecognition {
       'lion': ['lion', 'laion', 'layon', 'lyon', 'leao'],
       'elephant': ['elephant', 'elefant', 'elefan', 'eli-fant', 'elefante'],
       'monkey': ['monkey', 'monki', 'munkey', 'manki', 'macaco'],
-      'banana': ['banana', 'banan']
+      'banana': ['banana', 'banan'],
+      'apple': ['apple', 'epol', 'aple', 'epou', 'maca'],
+      'milk': ['milk', 'miuk', 'melk', 'milke', 'leite'],
+      'bread': ['bread', 'bred', 'brede', 'pao'],
+      'rocket': ['rocket', 'roquet', 'rokit', 'foguete'],
+      'moon': ['moon', 'mun', 'muun', 'lua'],
+      'planet': ['planet', 'plenet', 'planeta']
     };
 
     const validVariants = phoneticMap[cleanTarget] || [cleanTarget];
@@ -165,6 +174,9 @@ class KidSpeechRecognition {
       this.stopListening();
     } else {
       this.showSpeechFeedback('try_again', `Você falou: "${spoken}". Tente de novo! 🎤`);
+      if (typeof this.onErrorCallback === 'function') {
+        this.onErrorCallback(spoken);
+      }
       if (window.audioManager) {
         window.audioManager.playTryAgain();
         window.audioManager.speak(`Good try! Say: ${this.targetWord}`);

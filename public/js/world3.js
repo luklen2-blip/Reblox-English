@@ -1,4 +1,4 @@
-﻿// world3.js - Mundo 3: "Kitchen & Fruits 3D" (Cozinha Encantada, Alimentos e Vocabulário)
+// world3.js - Mundo 3: "Kitchen & Fruits 3D" (Cozinha Encantada, Alimentos e Vocabulário)
 
 class World3KitchenManager {
   constructor(scene, player) {
@@ -524,13 +524,35 @@ class World3KitchenManager {
     }
 
     setTimeout(() => {
-      alert("🎉 PARABÉNS! KITCHEN WORLD COMPLETO! 🍎🥛🍞\n\nVocê aprendeu as palavras APPLE, MILK e BREAD!");
-      this.kitchenVictoryTriggered = false;
+      // Reposiciona o jogador suavemente para a plataforma inicial
+      if (this.player) {
+        this.player.position.set(0, 3.5, 0);
+        this.player.velocity.set(0, 0, 0);
+        if (this.player.mesh) this.player.mesh.position.copy(this.player.position);
+      }
+      // Mantém a trava ativa durante esta sessão para impedir re-disparos e duplicação de moedas/XP
+      this.kitchenVictoryTriggered = true;
     }, 1200);
   }
 
   dispose() {
-    this.scene.remove(this.environmentGroup);
+    if (this.environmentGroup) {
+      this.environmentGroup.traverse((obj) => {
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+          if (Array.isArray(obj.material)) {
+            obj.material.forEach(m => {
+              if (m.map) m.map.dispose();
+              m.dispose();
+            });
+          } else {
+            if (obj.material.map) obj.material.map.dispose();
+            obj.material.dispose();
+          }
+        }
+      });
+      this.scene.remove(this.environmentGroup);
+    }
     this.platforms = [];
     this.foodItems = [];
     this.collectibles = [];

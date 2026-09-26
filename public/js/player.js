@@ -144,9 +144,15 @@ class Player {
       this.torso.material.color.set(skin.color);
     }
 
-    // 2. Remove acessório 3D anterior
+    // 2. Remove acessório 3D anterior e descarta geometrias/materiais para evitar vazamento
     while (this.accessoryGroup.children.length > 0) {
-      this.accessoryGroup.remove(this.accessoryGroup.children[0]);
+      const child = this.accessoryGroup.children[0];
+      if (child.geometry) child.geometry.dispose();
+      if (child.material) {
+        if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+        else child.material.dispose();
+      }
+      this.accessoryGroup.remove(child);
     }
 
     // 3. Monta o acessório correspondente
