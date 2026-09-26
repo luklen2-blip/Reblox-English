@@ -71,9 +71,10 @@
 
       <!-- Ações do HUD -->
       <div class="hud-right">
+        <button class="hud-btn hud-quiz-btn" id="quiz-btn" onclick="window.openQuizModal()" title="🎯 Mini-Jogo: Quiz de Voz e Memória">🎯</button>
         <button class="hud-btn hud-student-btn" id="student-dash-btn" onclick="window.openStudentDashboard()" title="🎒 Painel do Aluno: Nível, Conquistas e Missões">🎒</button>
         <button class="hud-btn hud-parents-btn" id="parents-dash-btn" onclick="window.openParentsDashboard()" title="👨‍👩‍👧 Painel Pedagógico dos Pais">👨‍👩‍👧</button>
-        <button class="hud-btn hud-worlds-btn" id="worlds-btn" onclick="window.openWorldsModal()" title="Explorar Mundos (World 1, World 2, World 3)">🌍</button>
+        <button class="hud-btn hud-worlds-btn" id="worlds-btn" onclick="window.openWorldsModal()" title="Explorar Mundos (World 1, World 2, World 3, World 4)">🌍</button>
         <button class="hud-btn hud-skin-btn" id="skin-shop-btn" title="Personalizar Avatar / Loja de Roupas e Chapéus">👕</button>
         <button class="hud-btn" id="respawn-btn" title="Voltar ao início da plataforma segura">🔁</button>
         <button class="hud-btn" id="mute-btn" title="Ativar ou desativar áudio">🔊</button>
@@ -286,6 +287,17 @@
           </div>
           <button class="btn-play-world" id="btn-play-world-3" onclick="window.switchWorld(3)">Explorar Cozinha</button>
         </div>
+
+        <!-- Card Mundo 4 -->
+        <div class="world-choice-card" id="select-world-4-card" onclick="window.switchWorld(4)">
+          <div class="world-card-icon">🚀</div>
+          <div class="world-card-info">
+            <div class="world-card-name">World 4: Space Adventure</div>
+            <div class="world-card-desc">Foguete, Lua, Planeta Saturno e Gravidade Lunar 3D!</div>
+            <span class="world-card-tag world-tag-vip" id="world-4-status-tag">VIP VITALÍCIO 👑</span>
+          </div>
+          <button class="btn-play-world" id="btn-play-world-4" onclick="window.switchWorld(4)">Explorar o Espaço</button>
+        </div>
       </div>
     </div>
   </div>
@@ -403,24 +415,72 @@
     </div>
   </div>
 
+  <!-- Modal: Mini-Jogo de Quiz de Voz e Memória Auditiva -->
+  <div class="modal-overlay" id="quiz-modal">
+    <div class="modal-card quiz-modal-card">
+      <button class="close-modal-btn" id="close-quiz-btn" onclick="window.closeQuizModal()" aria-label="Fechar">✕</button>
+      <div class="quiz-modal-header">
+        <div class="quiz-badge-icon">🎯</div>
+        <div>
+          <h2 class="quiz-title">Quiz de Voz & Memória</h2>
+          <p class="quiz-subtitle">Ouça em inglês e toque na resposta certa ou fale no microfone!</p>
+        </div>
+      </div>
+
+      <!-- Barra de Pontuação e Ações de Áudio -->
+      <div class="quiz-header-row">
+        <div class="quiz-score-pill">
+          <span>Pontos:</span>
+          <strong id="quiz-score-val">0</strong>
+        </div>
+        <div class="quiz-btn-actions">
+          <button class="quiz-action-btn" onclick="window.quizManager.speakTarget()" title="Ouvir a palavra novamente">
+            🔊 Ouvir
+          </button>
+          <button class="quiz-action-btn quiz-mic-btn" onclick="window.quizManager.listenWithMic()" title="Falar no microfone">
+            🎤 Falar
+          </button>
+        </div>
+      </div>
+
+      <!-- Palavra em Destaque -->
+      <div class="quiz-word-box">
+        <div class="quiz-listen-tag">LISTEN CAREFULLY:</div>
+        <div class="quiz-target-word" id="quiz-target-word">"ROCKET"</div>
+      </div>
+
+      <!-- Feedback Dinâmico de Resposta -->
+      <div class="quiz-feedback-box" id="quiz-feedback-box">
+        Ouça com atenção e escolha a imagem certa!
+      </div>
+
+      <!-- Opções em 3 Cards Ilustrados -->
+      <div class="quiz-options-container" id="quiz-options-container">
+        <!-- Gerado dinamicamente por quiz_game.js -->
+      </div>
+    </div>
+  </div>
+
   <!-- Bibliotecas Externas com Fallbacks -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <!-- Módulos da Aplicação com Cache-Busting -->
-  <script src="/js/audio.js?v=2.2.0"></script>
-  <script src="/js/speech_recognition.js?v=2.2.0"></script>
-  <script src="/js/controls.js?v=2.2.0"></script>
-  <script src="/js/state.js?v=2.2.0"></script>
-  <script src="/js/skins.js?v=2.2.0"></script>
-  <script src="/js/player.js?v=2.2.0"></script>
-  <script src="/js/world.js?v=2.2.0"></script>
-  <script src="/js/world2.js?v=2.2.0"></script>
-  <script src="/js/world3.js?v=2.2.0"></script>
-  <script src="/js/challenges.js?v=2.2.0"></script>
-  <script src="/js/portal.js?v=2.2.0"></script>
-  <script src="/js/pix.js?v=2.2.0"></script>
-  <script src="/js/worlds_modal.js?v=2.2.0"></script>
-  <script src="/js/main.js?v=2.2.0"></script>
+  <script src="/js/audio.js?v=2.3.0"></script>
+  <script src="/js/speech_recognition.js?v=2.3.0"></script>
+  <script src="/js/controls.js?v=2.3.0"></script>
+  <script src="/js/state.js?v=2.3.0"></script>
+  <script src="/js/skins.js?v=2.3.0"></script>
+  <script src="/js/player.js?v=2.3.0"></script>
+  <script src="/js/world.js?v=2.3.0"></script>
+  <script src="/js/world2.js?v=2.3.0"></script>
+  <script src="/js/world3.js?v=2.3.0"></script>
+  <script src="/js/world4.js?v=2.3.0"></script>
+  <script src="/js/quiz_game.js?v=2.3.0"></script>
+  <script src="/js/challenges.js?v=2.3.0"></script>
+  <script src="/js/portal.js?v=2.3.0"></script>
+  <script src="/js/pix.js?v=2.3.0"></script>
+  <script src="/js/worlds_modal.js?v=2.3.0"></script>
+  <script src="/js/main.js?v=2.3.0"></script>
 </body>
 </html>

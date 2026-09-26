@@ -1788,4 +1788,197 @@ canvas {
   border-bottom: none;
 }
 
+/* ================= QUIZ DE VOZ & MUNDO 4 (ESPACIAL) ================= */
+
+/* 1. Botão do Quiz no HUD */
+.hud-quiz-btn {
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  border: 3px solid #f472b6;
+  animation: pulse-quiz 2.5s infinite ease-in-out;
+}
+
+@keyframes pulse-quiz {
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3); }
+  50% { transform: scale(1.08); box-shadow: 0 4px 18px rgba(236, 72, 153, 0.6); }
+}
+
+/* 2. Badge do Mundo 4 no HUD */
+.space-badge {
+  background: linear-gradient(135deg, #4f46e5, #06b6d4);
+  color: white;
+  border: 2px solid #818cf8;
+}
+
+/* 3. Card do Modal do Quiz */
+.quiz-modal-card {
+  max-width: 520px;
+  background: #0f172a;
+  border: 3px solid #ec4899;
+  border-radius: 24px;
+  padding: 24px 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(236, 72, 153, 0.3);
+}
+
+.quiz-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.quiz-badge-icon {
+  font-size: 36px;
+  background: #db2777;
+  border-radius: 16px;
+  padding: 6px 12px;
+}
+
+.quiz-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: white;
+}
+
+.quiz-subtitle {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.quiz-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.quiz-score-pill {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid #eab308;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #facc15;
+  display: flex;
+  gap: 6px;
+}
+
+.quiz-btn-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.quiz-action-btn {
+  background: #1e293b;
+  border: 2px solid #38bdf8;
+  color: white;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s, background-color 0.15s;
+}
+
+.quiz-action-btn:hover {
+  transform: scale(1.05);
+  background: #334155;
+}
+
+.quiz-mic-btn {
+  border-color: #ec4899;
+  background: rgba(236, 72, 153, 0.2);
+}
+
+.quiz-word-box {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+  border: 2px dashed #ec4899;
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.quiz-listen-tag {
+  font-size: 11px;
+  font-weight: 900;
+  color: #f472b6;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.quiz-target-word {
+  font-size: 28px;
+  font-weight: 900;
+  color: #facc15;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.quiz-feedback-box {
+  background: rgba(30, 41, 59, 0.8);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  color: #94a3b8;
+  margin-bottom: 16px;
+}
+
+.quiz-feedback-box.correct {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #34d399;
+}
+
+.quiz-feedback-box.wrong {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  color: #f87171;
+}
+
+.quiz-options-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.quiz-option-card {
+  background: rgba(30, 41, 59, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 14px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.quiz-option-card:hover {
+  transform: translateY(-4px);
+  border-color: #ec4899;
+  background: rgba(236, 72, 153, 0.15);
+}
+
+.quiz-opt-emoji {
+  font-size: 34px;
+}
+
+.quiz-opt-word {
+  font-size: 14px;
+  font-weight: 900;
+  color: white;
+}
+
+.quiz-opt-hint {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+
 

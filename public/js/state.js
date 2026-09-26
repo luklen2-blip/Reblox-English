@@ -390,7 +390,10 @@ class GameStateManager {
         'seven_streak': '🔥 7 Dias de Atividade!',
         'world1_complete': '⭐ Rainbow Bridge Vencido!',
         'world2_complete': '🦁 Safari Vencido!',
-        'world3_complete': '🍎 Kitchen & Fruits Vencido!'
+        'world3_complete': '🍎 Kitchen & Fruits Vencido!',
+        'space_master': '🚀 Mestre do Espaço!',
+        'world4_complete': '🪐 Space Adventure Vencido!',
+        'quiz_champion': '🎯 Campeão do Quiz!'
       };
       const title = badgeNames[badgeId] || '🏆 Nova Conquista!';
       this.showCelebrationBanner(title, 'Conquista desbloqueada com sucesso!');
@@ -528,7 +531,10 @@ class GameStateManager {
         { id: 'kitchen_master', title: 'Master Chef', desc: 'Dominou a cozinha', icon: '🍳' },
         { id: 'world1_complete', title: 'Rainbow Bridge', desc: 'Venceu o Mundo 1', icon: '🏆' },
         { id: 'world2_complete', title: 'Safari Hero', desc: 'Venceu o Mundo 2', icon: '🌍' },
-        { id: 'world3_complete', title: 'Kitchen Star', desc: 'Venceu o Mundo 3', icon: '🍎' }
+        { id: 'world3_complete', title: 'Kitchen Star', desc: 'Venceu o Mundo 3', icon: '🍎' },
+        { id: 'space_master', title: 'Space Master', desc: 'Dominou o espaço', icon: '🚀' },
+        { id: 'world4_complete', title: 'Cosmic Hero', desc: 'Venceu o Mundo 4', icon: '🪐' },
+        { id: 'quiz_champion', title: 'Quiz Champion', desc: 'Mestre do quiz de voz', icon: '🎯' }
       ];
 
       badgesContainer.innerHTML = '';

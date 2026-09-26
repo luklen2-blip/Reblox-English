@@ -75,13 +75,55 @@ class GameApp {
       window.gameStateManager.setWorld(worldId);
     }
 
-    if (worldId === 3) {
+    if (worldId === 4) {
       // Limpa mundos anteriores
       if (this.world) { this.world.dispose(); this.world = null; }
       if (this.challenges) { this.challenges.dispose(); this.challenges = null; }
       if (this.portal) { this.portal.dispose(); this.portal = null; }
       if (this.world2) { this.world2.dispose(); this.world2 = null; }
       if (this.world3) { this.world3.dispose(); this.world3 = null; }
+      if (this.world4) { this.world4.dispose(); this.world4 = null; }
+
+      // Constrói Mundo 4: Space Adventure
+      this.currentWorldId = 4;
+      this.world4 = new World4SpaceManager(this.scene, this.player);
+      window.world4Manager = this.world4;
+
+      // Gravidade lunar / pulo espacial mais alto
+      if (this.player) this.player.jumpForce = 16.5;
+
+      // Reseta posição do jogador para o início da Base Espacial
+      this.player.position.set(0, 3.5, 0);
+      this.player.setCheckpoint(new THREE.Vector3(0, 3.5, 0));
+      this.player.velocity.set(0, 0, 0);
+      this.player.mesh.position.copy(this.player.position);
+      this.player.isFrozen = false;
+      this.sectionAnnounced = {};
+
+      // Atualiza badge de mundo ativo no HUD
+      const worldBadge = document.getElementById('current-world-badge');
+      if (worldBadge) {
+        worldBadge.textContent = '🚀 MUNDO 4: SPACE';
+        worldBadge.className = 'current-world-badge space-badge';
+      }
+
+      // Atualiza HUD para Space
+      this.setWordHighlight('ROCKET! 🚀', 'Explore o Espaço e alcance o Foguete!');
+      const counterEl = document.getElementById('collectibles-counter');
+      if (counterEl) counterEl.textContent = '0/3';
+
+      if (window.audioManager) {
+        window.audioManager.speak("Welcome to Space Adventure! Look for the Rocket!");
+      }
+    } else if (worldId === 3) {
+      if (this.player) this.player.jumpForce = 14.0;
+      // Limpa mundos anteriores
+      if (this.world) { this.world.dispose(); this.world = null; }
+      if (this.challenges) { this.challenges.dispose(); this.challenges = null; }
+      if (this.portal) { this.portal.dispose(); this.portal = null; }
+      if (this.world2) { this.world2.dispose(); this.world2 = null; }
+      if (this.world3) { this.world3.dispose(); this.world3 = null; }
+      if (this.world4) { this.world4.dispose(); this.world4 = null; }
 
       // Constrói Mundo 3: Kitchen & Fruits
       this.currentWorldId = 3;
@@ -112,6 +154,7 @@ class GameApp {
         window.audioManager.speak("Welcome to Kitchen and Fruits! Look for the Apple!");
       }
     } else if (worldId === 2) {
+      if (this.player) this.player.jumpForce = 14.0;
       const isUnlocked = (window.userGameState && window.userGameState.isProUnlocked) ||
                          localStorage.getItem('roblox_english_obby_unlocked') === 'true';
 
@@ -121,6 +164,7 @@ class GameApp {
       if (this.portal) { this.portal.dispose(); this.portal = null; }
       if (this.world2) { this.world2.dispose(); this.world2 = null; }
       if (this.world3) { this.world3.dispose(); this.world3 = null; }
+      if (this.world4) { this.world4.dispose(); this.world4 = null; }
 
       // Constrói Mundo 2: Animal Safari
       this.currentWorldId = 2;
@@ -152,6 +196,8 @@ class GameApp {
       }
     } else {
       // Retorna para Mundo 1: Rainbow Obby
+      if (this.player) this.player.jumpForce = 14.0;
+      if (this.world4) { this.world4.dispose(); this.world4 = null; }
       if (this.world3) { this.world3.dispose(); this.world3 = null; }
       if (this.world2) { this.world2.dispose(); this.world2 = null; }
       if (this.world) { this.world.dispose(); this.world = null; }
@@ -520,6 +566,37 @@ class GameApp {
         }
         if (window.gameStateManager) window.gameStateManager.addMasteredWord('Bread');
       }
+    } else if (this.currentWorldId === 4) {
+      // Mundo 4 - Space Adventure Gatilhos
+      // Foguete
+      if (z <= -30 && z > -65 && !this.sectionAnnounced['space_rocket']) {
+        this.sectionAnnounced['space_rocket'] = true;
+        this.setWordHighlight('ROCKET! 🚀', 'Aperte SPEAK e diga: "ROCKET"!');
+        if (window.audioManager) {
+          window.audioManager.speak('Look at the giant Rocket! Blast off! Say Rocket!');
+        }
+        if (window.gameStateManager) window.gameStateManager.addMasteredWord('Rocket');
+      }
+
+      // Lua
+      if (z <= -65 && z > -100 && !this.sectionAnnounced['space_moon']) {
+        this.sectionAnnounced['space_moon'] = true;
+        this.setWordHighlight('MOON! 🌙', 'Aperte SPEAK e diga: "MOON"!');
+        if (window.audioManager) {
+          window.audioManager.speak('The shining yellow Moon! Say Moon!');
+        }
+        if (window.gameStateManager) window.gameStateManager.addMasteredWord('Moon');
+      }
+
+      // Planeta
+      if (z <= -100 && !this.sectionAnnounced['space_planet']) {
+        this.sectionAnnounced['space_planet'] = true;
+        this.setWordHighlight('PLANET! 🪐', 'Aperte SPEAK e diga: "PLANET"!');
+        if (window.audioManager) {
+          window.audioManager.speak('A giant ringed Planet! Say Planet!');
+        }
+        if (window.gameStateManager) window.gameStateManager.addMasteredWord('Planet');
+      }
     }
   }
 
@@ -536,6 +613,8 @@ class GameApp {
       currentPlatforms = this.world2.platforms;
     } else if (this.currentWorldId === 3 && this.world3) {
       currentPlatforms = this.world3.platforms;
+    } else if (this.currentWorldId === 4 && this.world4) {
+      currentPlatforms = this.world4.platforms;
     }
 
     // 1. Atualiza o jogador com colisões do mundo ativo
@@ -566,6 +645,8 @@ class GameApp {
       if (this.world2) this.world2.update(delta);
     } else if (this.currentWorldId === 3) {
       if (this.world3) this.world3.update(delta);
+    } else if (this.currentWorldId === 4) {
+      if (this.world4) this.world4.update(delta);
     }
 
     this.checkSectionTriggers();

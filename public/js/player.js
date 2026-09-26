@@ -226,6 +226,62 @@ class Player {
         }
         break;
       }
+      case 'chef': {
+        // Chapéu de Chef Branco com topo arredondado
+        const chefMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+        const baseGeo = new THREE.CylinderGeometry(0.42, 0.42, 0.25, 12);
+        const base = new THREE.Mesh(baseGeo, chefMat);
+        base.position.set(0, 0.5, 0);
+        const topGeo = new THREE.SphereGeometry(0.52, 12, 12);
+        const top = new THREE.Mesh(topGeo, chefMat);
+        top.position.set(0, 0.75, 0);
+        top.scale.set(1.1, 0.7, 1.1);
+        this.accessoryGroup.add(base);
+        this.accessoryGroup.add(top);
+        break;
+      }
+      case 'safari': {
+        // Chapéu de Explorador Safari com Aba Larga
+        const safariMat = new THREE.MeshLambertMaterial({ color: 0xb45309 });
+        const brimGeo = new THREE.CylinderGeometry(0.68, 0.68, 0.08, 16);
+        const brim = new THREE.Mesh(brimGeo, safariMat);
+        brim.position.set(0, 0.42, 0);
+        const crownGeo = new THREE.CylinderGeometry(0.38, 0.44, 0.35, 12);
+        const crown = new THREE.Mesh(crownGeo, safariMat);
+        crown.position.set(0, 0.6, 0);
+        this.accessoryGroup.add(brim);
+        this.accessoryGroup.add(crown);
+        break;
+      }
+      case 'cosmic': {
+        // Capacete Cósmico com Visor Holográfico Ciano
+        const cosmicMat = new THREE.MeshLambertMaterial({ color: 0x4f46e5 });
+        const helmGeo = new THREE.BoxGeometry(0.92, 0.92, 0.92);
+        const helm = new THREE.Mesh(helmGeo, cosmicMat);
+        const visorMat = new THREE.MeshLambertMaterial({ color: 0x38bdf8, emissive: 0x0284c7 });
+        const visorGeo = new THREE.BoxGeometry(0.72, 0.38, 0.15);
+        const visor = new THREE.Mesh(visorGeo, visorMat);
+        visor.position.set(0, 0.05, 0.45);
+        this.accessoryGroup.add(helm);
+        this.accessoryGroup.add(visor);
+        break;
+      }
+      case 'pirate': {
+        // Chapéu Pirata com caveira e bandana
+        const pirateMat = new THREE.MeshLambertMaterial({ color: 0x0f172a });
+        const trimMat = new THREE.MeshLambertMaterial({ color: 0xfacc15 });
+        const triGeo = new THREE.CylinderGeometry(0.48, 0.48, 0.28, 3);
+        const tri = new THREE.Mesh(triGeo, pirateMat);
+        tri.position.set(0, 0.55, 0);
+        tri.rotation.y = Math.PI;
+        const featherGeo = new THREE.BoxGeometry(0.08, 0.5, 0.15);
+        const feather = new THREE.Mesh(featherGeo, trimMat);
+        feather.position.set(-0.35, 0.75, 0);
+        feather.rotation.z = -0.3;
+        this.accessoryGroup.add(tri);
+        this.accessoryGroup.add(feather);
+        break;
+      }
       case 'cap':
       default: {
         // Boné vermelho esportivo

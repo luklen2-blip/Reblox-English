@@ -7,6 +7,10 @@ const SKINS = [
   { id: 'gold', name: 'Golden King', color: '#eab308', isPro: true, hat: '👑', hatType: 'crown' },
   { id: 'ninja', name: 'Shadow Ninja', color: '#18181b', isPro: true, hat: '🥷', hatType: 'ninja' },
   { id: 'dino', name: 'Baby Dino', color: '#22c55e', isPro: true, hat: '🦖', hatType: 'dino' },
+  { id: 'chef', name: 'Master Chef', color: '#ea580c', isPro: true, hat: '👨‍🍳', hatType: 'chef' },
+  { id: 'safari', name: 'Safari Guide', color: '#b45309', isPro: true, hat: '🤠', hatType: 'safari' },
+  { id: 'cosmic', name: 'Cosmic Astro', color: '#6366f1', isPro: true, hat: '👨‍🚀', hatType: 'cosmic' },
+  { id: 'pirate', name: 'Island Pirate', color: '#7c3aed', isPro: true, hat: '🏴‍☠️', hatType: 'pirate' }
 ];
 
 window.SKINS = SKINS;

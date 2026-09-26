@@ -387,6 +387,91 @@ async function runTests() {
     assert(safeGamified.wordStats.NormalWord.correct === 5, 'Sanitizador deve aceitar estatísticas legítimas');
     assert(safeGamified.wordStats.NormalWord.wrong === 0, 'Sanitizador deve corrigir contagem de erros negativa');
 
+    // ================= TESTE 13: TRÍPLICE EXPANSÃO (MUNDO 4 ESPACIAL, QUIZ DE VOZ E NOVAS SKINS) =================
+    console.log('\n📋 Teste 13: Tríplice Expansão (Mundo 4 Espacial, Quiz de Voz & Novas Skins)');
+    const world4Res = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/js/world4.js',
+      method: 'GET'
+    });
+    assert(world4Res.statusCode === 200, 'Arquivo /js/world4.js deve responder HTTP 200');
+    assert(world4Res.data.includes('World4SpaceManager'), 'world4.js deve conter a classe World4SpaceManager');
+    assert(world4Res.data.includes('createGiantRocket'), 'world4.js deve conter modelo 3D do Foguete (Rocket)');
+    assert(world4Res.data.includes('createGiantMoon'), 'world4.js deve conter modelo 3D da Lua (Moon)');
+    assert(world4Res.data.includes('createGiantPlanet'), 'world4.js deve conter modelo 3D do Planeta com Anéis (Planet)');
+
+    const quizJsRes = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/js/quiz_game.js',
+      method: 'GET'
+    });
+    assert(quizJsRes.statusCode === 200, 'Arquivo /js/quiz_game.js deve responder HTTP 200');
+    assert(quizJsRes.data.includes('VoiceQuizManager'), 'quiz_game.js deve conter a classe VoiceQuizManager');
+    assert(quizJsRes.data.includes('startNewRound'), 'quiz_game.js deve conter método startNewRound');
+    assert(quizJsRes.data.includes('handleAnswer'), 'quiz_game.js deve conter método handleAnswer');
+
+    assert(indexRes.data.includes('/js/world4.js'), 'HTML deve importar o script do Mundo 4 (/js/world4.js)');
+    assert(indexRes.data.includes('/js/quiz_game.js'), 'HTML deve importar o script do Quiz de Voz (/js/quiz_game.js)');
+    assert(indexRes.data.includes('quiz-modal'), 'HTML deve conter o modal do Quiz (quiz-modal)');
+    assert(indexRes.data.includes('quiz-btn'), 'HUD deve conter o botão de acesso ao Quiz (quiz-btn)');
+    assert(indexRes.data.includes('select-world-4-card'), 'Modal de Mundos deve conter o card do Mundo 4 (Space Adventure)');
+
+    const skinsJsRes = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/js/skins.js',
+      method: 'GET'
+    });
+    assert(skinsJsRes.statusCode === 200, 'Arquivo /js/skins.js deve responder HTTP 200');
+    assert(skinsJsRes.data.includes("'chef'"), 'skins.js deve conter a skin chef');
+    assert(skinsJsRes.data.includes("'safari'"), 'skins.js deve conter a skin safari');
+    assert(skinsJsRes.data.includes("'cosmic'"), 'skins.js deve conter a skin cosmic');
+    assert(skinsJsRes.data.includes("'pirate'"), 'skins.js deve conter a skin pirate');
+
+    const playerJsRes = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/js/player.js',
+      method: 'GET'
+    });
+    assert(playerJsRes.statusCode === 200, 'Arquivo /js/player.js deve responder HTTP 200');
+    assert(playerJsRes.data.includes("case 'chef'"), 'player.js deve renderizar chapéu de chef');
+    assert(playerJsRes.data.includes("case 'safari'"), 'player.js deve renderizar chapéu de safari');
+    assert(playerJsRes.data.includes("case 'cosmic'"), 'player.js deve renderizar capacete cósmico');
+    assert(playerJsRes.data.includes("case 'pirate'"), 'player.js deve renderizar chapéu de pirata');
+
+    assert(stateJsRes.data.includes('space_master'), 'state.js deve registrar conquista space_master');
+    assert(stateJsRes.data.includes('world4_complete'), 'state.js deve registrar conquista world4_complete');
+    assert(stateJsRes.data.includes('quiz_champion'), 'state.js deve registrar conquista quiz_champion');
+
+    // Teste de persistência e validação do Mundo 4 e skin cósmica na API
+    const spaceStateRes = await request({
+      hostname: 'localhost',
+      port: testPort,
+      path: '/api/user/state',
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }, JSON.stringify({
+      state: {
+        currentWorld: 4,
+        selectedSkin: 'cosmic',
+        badges: ['space_master', 'world4_complete', 'quiz_champion'],
+        wordStats: {
+          Rocket: { correct: 3, wrong: 0, attempts: 3 },
+          Moon: { correct: 2, wrong: 1, attempts: 3 }
+        }
+      }
+    }));
+    assert(spaceStateRes.statusCode === 200, 'POST /api/user/state deve salvar Mundo 4 e skin cósmica com HTTP 200');
+    const spaceStateJson = JSON.parse(spaceStateRes.data);
+    assert(spaceStateJson.state.currentWorld === 4, 'API deve persistir currentWorld = 4');
+    assert(spaceStateJson.state.selectedSkin === 'cosmic', 'API deve persistir selectedSkin = cosmic');
+    assert(spaceStateJson.state.badges.includes('space_master'), 'API deve persistir space_master');
+    assert(spaceStateJson.state.wordStats.Rocket.correct === 3, 'API deve persistir estatísticas da palavra Rocket');
+
+
 
   } catch (err) {
     console.error('❌ Erro durante a execução dos testes:', err);

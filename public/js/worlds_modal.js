@@ -15,7 +15,7 @@ class WorldsModalManager {
     this.modal = this.modal || document.getElementById('worlds-modal');
     if (!this.modal) return;
 
-    // Atualiza status do Mundo 2 e Mundo 3 se VIP
+    // Atualiza status do Mundo 2, 3 e 4 se VIP
     const isVIP = localStorage.getItem('roblox_english_obby_unlocked') === 'true';
     const tag2 = document.getElementById('world-2-status-tag');
     if (tag2) {
@@ -27,15 +27,22 @@ class WorldsModalManager {
       tag3.textContent = isVIP ? 'LIBERADO 👑' : 'VIP VITALÍCIO 👑';
       tag3.className = isVIP ? 'world-card-tag world-tag-free' : 'world-card-tag world-tag-vip';
     }
+    const tag4 = document.getElementById('world-4-status-tag');
+    if (tag4) {
+      tag4.textContent = isVIP ? 'LIBERADO 👑' : 'VIP VITALÍCIO 👑';
+      tag4.className = isVIP ? 'world-card-tag world-tag-free' : 'world-card-tag world-tag-vip';
+    }
 
     // Destaca qual mundo está ativo
     const currentId = (window.gameApp && window.gameApp.currentWorldId) || 1;
     const card1 = document.getElementById('select-world-1-card');
     const card2 = document.getElementById('select-world-2-card');
     const card3 = document.getElementById('select-world-3-card');
+    const card4 = document.getElementById('select-world-4-card');
     if (card1) card1.classList.toggle('active-world', currentId === 1);
     if (card2) card2.classList.toggle('active-world', currentId === 2);
     if (card3) card3.classList.toggle('active-world', currentId === 3);
+    if (card4) card4.classList.toggle('active-world', currentId === 4);
 
     this.modal.classList.add('active');
     this.modal.style.display = 'flex';
@@ -112,7 +119,15 @@ class WorldsModalManager {
         return;
       }
 
-      // 6. Fechar ao clicar no fundo escuro
+      // 6. Clicar em World 4 (Space)
+      if (e.target.closest('#btn-play-world-4') || e.target.closest('#select-world-4-card')) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.selectWorld(4);
+        return;
+      }
+
+      // 7. Fechar ao clicar no fundo escuro
       const modal = document.getElementById('worlds-modal');
       if (modal && e.target === modal) {
         this.close();

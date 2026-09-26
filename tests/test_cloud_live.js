@@ -76,14 +76,16 @@ async function runLiveTest() {
     const priv = await liveRequest('/privacidade');
     console.log(`   Termos: HTTP ${termos.statusCode} | Privacidade: HTTP ${priv.statusCode}`);
 
-    // 5. Assets de Mundo 2, Mundo 3 e Reconhecimento de Voz
-    console.log('🦁 5. Testando assets dos Mundos 2 e 3, Voz e Seletor de Mundos...');
+    // 5. Assets dos Mundos 2, 3, 4, Quiz de Voz e Seletor de Mundos
+    console.log('🦁 5. Testando assets dos Mundos 2, 3, 4, Quiz de Voz e Seletor de Mundos...');
     const w2 = await liveRequest('/js/world2.js');
     const w3 = await liveRequest('/js/world3.js');
+    const w4 = await liveRequest('/js/world4.js');
+    const quiz = await liveRequest('/js/quiz_game.js');
     const stt = await liveRequest('/js/speech_recognition.js');
     const wm = await liveRequest('/js/worlds_modal.js');
-    console.log(`   World 2 JS: HTTP ${w2.statusCode} (${w2.data.length} bytes) | World 3 JS: HTTP ${w3.statusCode} (${w3.data.length} bytes)`);
-    console.log(`   STT JS: HTTP ${stt.statusCode} (${stt.data.length} bytes) | Worlds Modal JS: HTTP ${wm.statusCode} (${wm.data.length} bytes)`);
+    console.log(`   World 2: HTTP ${w2.statusCode} | World 3: HTTP ${w3.statusCode} | World 4: HTTP ${w4.statusCode} (${w4.data.length} bytes)`);
+    console.log(`   Quiz JS: HTTP ${quiz.statusCode} (${quiz.data.length} bytes) | STT JS: HTTP ${stt.statusCode} | Worlds Modal JS: HTTP ${wm.statusCode}`);
 
     // 6. Estado Gamificado da Fase 2
     console.log('⭐ 6. Testando API de Estado Gamificado (/api/user/state)...');
