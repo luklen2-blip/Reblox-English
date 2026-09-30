@@ -2412,6 +2412,75 @@ canvas {
   border-color: #34d399;
 }
 
+/* Passo a Passo para Pais e Crianças no Painel Pedagógico */
+.parents-guide-section {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.step-guide-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+@media (max-width: 680px) {
+  .step-guide-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.step-guide-col {
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.step-col-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #38bdf8;
+  margin: 0 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #e2e8f0;
+}
+
+.step-item:last-child {
+  margin-bottom: 0;
+}
+
+.step-num {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  font-weight: 900;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+
 
 
 
