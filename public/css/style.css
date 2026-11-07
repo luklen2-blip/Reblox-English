@@ -51,32 +51,47 @@ canvas {
 
 .hud-top-bar {
   width: 100%;
-  max-width: 900px;
+  max-width: 1400px;
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
 }
 
-.hud-left, .hud-right {
+.hud-left {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
   align-items: center;
   pointer-events: auto;
+  max-width: 50%;
+}
+
+.hud-right {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  align-items: center;
+  pointer-events: auto;
+  max-width: 50%;
 }
 
 .hud-btn {
   background: white;
   border: 3px solid #ffcc00;
   border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  font-size: 22px;
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0,0,0,0.15);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.15s, background-color 0.15s;
+  flex-shrink: 0;
 }
 
 .hud-btn:hover {
@@ -1324,7 +1339,31 @@ canvas {
   transform: scale(1.05);
 }
 
-/* Responsividade */
+/* Responsividade de Alta Fidelidade (Garante todos os 9 ícones sempre visíveis) */
+@media (max-width: 1024px) {
+  .hud-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    border-width: 2px;
+  }
+  .hud-right {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hud-top-bar {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .hud-left, .hud-right {
+    max-width: 100%;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 600px) {
   html, body {
     overflow-x: hidden !important;
