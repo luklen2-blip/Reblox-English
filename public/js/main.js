@@ -71,10 +71,12 @@ class GameApp {
     const modal = document.getElementById('worlds-modal');
     if (modal) modal.classList.remove('active');
 
-    // Trava de Segurança Comercial: Mundos 2, 3 e 4 são exclusivos para Acesso Vitalício (VIP Pro)
-    const isUnlocked = (window.userGameState && window.userGameState.isProUnlocked === true) ||
-                       (window.gameStateManager && window.gameStateManager.state && window.gameStateManager.state.isProUnlocked === true) ||
-                       localStorage.getItem('roblox_english_obby_unlocked') === 'true';
+    // Trava de Segurança Comercial: Mundos 2, 3 e 4 liberados via VIP Vitalício ou 1 Hora de Teste Grátis
+    const isUnlocked = (window.gameStateManager && typeof window.gameStateManager.isVipUnlocked === 'function')
+      ? window.gameStateManager.isVipUnlocked()
+      : ((window.userGameState && window.userGameState.isProUnlocked === true) ||
+         (window.gameStateManager && window.gameStateManager.state && window.gameStateManager.state.isProUnlocked === true) ||
+         localStorage.getItem('roblox_english_obby_unlocked') === 'true');
 
     if (worldId > 1 && !isUnlocked) {
       console.warn(`🔒 Mundo ${worldId} bloqueado: requer Acesso Vitalício (R$ 19,90).`);

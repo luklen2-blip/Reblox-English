@@ -70,7 +70,7 @@ async function runTests() {
       headers: { 'Content-Type': 'application/json' }
     }, JSON.stringify({
       amount: 19.90,
-      pixKey: 'luciano.obby@gmail.com',
+      pixKey: 'luklen2@gmail.com',
       name: 'ROBLOX ENGLISH OBBY'
     }));
 
@@ -295,7 +295,7 @@ async function runTests() {
     // ================= TESTE 11: AVISOS ÉTICOS, PADRÃO MÉDICO/PSICOLÓGICO E DPO =================
     console.log('\n📋 Teste 11: Avisos Éticos, Não-Substituição Médica/Psicológica e DPO');
     assert(termosRes.data.includes('NÃO substituem diagnósticos') || termosRes.data.includes('psicológico'), 'Termos devem conter aviso de não substituição médica/psicológica');
-    assert(privRes.data.includes('luciano.obby@gmail.com'), 'Política de privacidade deve conter canal de contato oficial do DPO');
+    assert(privRes.data.includes('luklen2@gmail.com'), 'Política de privacidade deve conter canal de contato oficial do DPO');
     assert(indexRes.data.includes('modal-ethical-note'), 'Modal de conversão no HTML deve conter aviso ético aos pais');
     assert(indexRes.data.includes('apple-mobile-web-app-capable'), 'HTML deve conter meta tag para PWA e visualização móvel');
 
@@ -548,6 +548,19 @@ async function runTests() {
 
     assert(updatedHtmlRes.data.includes('class="parents-guide-section"'), 'HTML deve conter a seção do passo a passo para pais e crianças');
     assert(updatedHtmlRes.data.includes('class="step-guide-grid"'), 'HTML deve conter o grid de passos ilustrados');
+
+    console.log('\n📋 Teste 18: Gestão de 1 Hora de Uso Grátis e Chave PIX Oficial (luklen2@gmail.com)');
+    const trialStateJsRes = await request({ hostname: 'localhost', port: testPort, path: '/js/state.js' });
+    assert(trialStateJsRes.data.includes('initFreeTrial'), 'state.js deve implementar initFreeTrial');
+    assert(trialStateJsRes.data.includes('isTrialActive'), 'state.js deve implementar isTrialActive');
+    assert(trialStateJsRes.data.includes('getTrialRemainingSeconds'), 'state.js deve calcular segundos restantes de teste');
+    assert(trialStateJsRes.data.includes('isVipUnlocked'), 'state.js deve implementar isVipUnlocked com suporte ao período grátis');
+
+    assert(updatedHtmlRes.data.includes('id="trial-badge"'), 'HTML deve conter badge de teste grátis (trial-badge)');
+    assert(updatedHtmlRes.data.includes('luklen2@gmail.com'), 'HTML deve exibir a chave PIX oficial luklen2@gmail.com');
+
+    assert(auditCssRes.data.includes('.trial-badge'), 'CSS deve definir estilo da badge de teste grátis');
+    assert(auditCssRes.data.includes('pulse-trial'), 'CSS deve conter animação pulse-trial');
   } catch (err) {
     console.error('❌ Erro durante a execução dos testes:', err);
     process.exitCode = 1;

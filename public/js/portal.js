@@ -83,9 +83,11 @@ class PortalManager {
   triggerVictory() {
     this.activated = true;
 
-    // Checa se o usuário já possui acesso vitalício salvo
-    const isUnlocked = (window.userGameState && window.userGameState.isProUnlocked) ||
-                       localStorage.getItem('roblox_english_obby_unlocked') === 'true';
+    // Checa se o usuário já possui acesso vitalício ou 1 hora de uso grátis
+    const isUnlocked = (window.gameStateManager && typeof window.gameStateManager.isVipUnlocked === 'function')
+      ? window.gameStateManager.isVipUnlocked()
+      : ((window.userGameState && window.userGameState.isProUnlocked) ||
+         localStorage.getItem('roblox_english_obby_unlocked') === 'true');
 
     // 1. Áudio e comemoração
     if (window.audioManager) {

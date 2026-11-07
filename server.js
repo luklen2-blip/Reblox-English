@@ -185,6 +185,13 @@ function sanitizeGameState(raw) {
   if (typeof raw.learningTimeSeconds === 'number' && Number.isInteger(raw.learningTimeSeconds) && raw.learningTimeSeconds >= 0) {
     safe.learningTimeSeconds = Math.min(raw.learningTimeSeconds, 10000000);
   }
+  // 1 Hora de Uso Grátis (Free Trial)
+  if (typeof raw.trialStartTime === 'number' && raw.trialStartTime > 0) {
+    safe.trialStartTime = raw.trialStartTime;
+  }
+  if (typeof raw.trialDurationSeconds === 'number' && raw.trialDurationSeconds > 0) {
+    safe.trialDurationSeconds = Math.min(raw.trialDurationSeconds, 86400);
+  }
   if (raw.dailyChallenge && typeof raw.dailyChallenge === 'object') {
     safe.dailyChallenge = {
       id: typeof raw.dailyChallenge.id === 'string' ? raw.dailyChallenge.id.slice(0, 32) : 'daily_1',
@@ -254,7 +261,7 @@ const server = http.createServer((req, res) => {
           params = Object.fromEntries(reqUrl.searchParams);
         }
 
-        const pixKey = params.pixKey || 'luciano.obby@gmail.com';
+        const pixKey = params.pixKey || 'luklen2@gmail.com';
         const name = params.name || 'LUCIANO SANT ANNA';
         const city = params.city || 'FORTALEZA';
         const amount = params.amount || 19.90;

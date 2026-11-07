@@ -3,6 +3,8 @@
 
 const DEFAULT_GAME_STATE = {
   isProUnlocked: false,       // Vira true após confirmação do PIX de R$ 19,90
+  trialStartTime: null,       // Timestamp do início da 1 hora de uso grátis
+  trialDurationSeconds: 3600, // 1 hora de acesso liberado (3600s)
   currentWorld: 1,            // Nível desbloqueado atual
   selectedSkin: 'default',    // ID da roupinha em uso
   collectedStars: 3,          // Progresso de recompensas
@@ -48,6 +50,9 @@ class GameStateManager {
     // Sincroniza retrocompatibilidade com chaves legadas
     this.syncLegacyKeys();
 
+    // Inicializa 1 Hora de Teste Grátis
+    this.initFreeTrial();
+
     // Renderiza vocabulário no modal dos pais e HUD se o DOM já estiver pronto
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => {
@@ -78,6 +83,8 @@ class GameStateManager {
         const parsed = JSON.parse(raw);
         return {
           isProUnlocked: typeof parsed.isProUnlocked === 'boolean' ? parsed.isProUnlocked : (localStorage.getItem('roblox_english_obby_unlocked') === 'true'),
+          trialStartTime: typeof parsed.trialStartTime === 'number' ? parsed.trialStartTime : null,
+          trialDurationSeconds: typeof parsed.trialDurationSeconds === 'number' ? parsed.trialDurationSeconds : 3600,
           currentWorld: typeof parsed.currentWorld === 'number' ? parsed.currentWorld : 1,
           selectedSkin: parsed.selectedSkin || localStorage.getItem('roblox_english_obby_skin') || 'default',
           collectedStars: typeof parsed.collectedStars === 'number' ? parsed.collectedStars : DEFAULT_GAME_STATE.collectedStars,
@@ -166,13 +173,103 @@ class GameStateManager {
     } catch (e) {}
   }
 
+  // =========================================================================
+  // GESTÃO DE 1 HORA DE USO GRÁTIS (FREE TRIAL)
+  // =========================================================================
+  initFreeTrial() {
+    const savedStart = localStorage.getItem('roblox_english_obby_trial_start');
+    if (savedStart) {
+      this.state.trialStartTime = parseInt(savedStart, 10);
+    } else if (!this.state.trialStartTime) {
+      this.state.trialStartTime = Date.now();
+      localStorage.setItem('roblox_english_obby_trial_start', String(this.state.trialStartTime));
+      this.save();
+    }
+
+    if (typeof document !== 'undefined') {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => this.startTrialCountdown());
+      } else {
+        this.startTrialCountdown();
+      }
+    }
+  }
+
+  getTrialRemainingSeconds() {
+    if (this.state.isProUnlocked) return 0;
+    if (!this.state.trialStartTime) return 0;
+    const elapsedSeconds = Math.floor((Date.now() - this.state.trialStartTime) / 1000);
+    const duration = this.state.trialDurationSeconds || 3600;
+    const remaining = duration - elapsedSeconds;
+    return Math.max(0, remaining);
+  }
+
+  isTrialActive() {
+    if (this.state.isProUnlocked) return false;
+    return this.getTrialRemainingSeconds() > 0;
+  }
+
+  isVipUnlocked() {
+    return Boolean(this.state.isProUnlocked || this.isTrialActive());
+  }
+
+  startTrialCountdown() {
+    if (this.trialInterval) clearInterval(this.trialInterval);
+
+    const updateTrialUI = () => {
+      const trialBadge = document.getElementById('trial-badge');
+      const trialCountdown = document.getElementById('trial-countdown');
+      const vipBadge = document.getElementById('vip-badge');
+
+      if (this.state.isProUnlocked) {
+        if (trialBadge) trialBadge.style.display = 'none';
+        if (vipBadge) vipBadge.style.display = 'flex';
+        return;
+      }
+
+      if (this.isTrialActive()) {
+        const remaining = this.getTrialRemainingSeconds();
+        const mins = Math.floor(remaining / 60);
+        const secs = remaining % 60;
+        const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+        if (trialBadge) {
+          trialBadge.style.display = 'flex';
+          trialBadge.onclick = () => {
+            alert(`🎉 1 HORA DE TESTE GRÁTIS ATIVA!\n\n⏳ Tempo restante: ${timeStr}\nTodos os 4 mundos e roupinhas estão liberados para você brincar à vontade!`);
+          };
+        }
+        if (trialCountdown) trialCountdown.textContent = timeStr;
+        if (vipBadge) vipBadge.style.display = 'none';
+      } else {
+        if (trialBadge) trialBadge.style.display = 'none';
+        if (vipBadge) vipBadge.style.display = 'none';
+
+        // Se o teste acabou e o jogador está em mundos VIP, avisa e volta para Mundo 1
+        if (this.state.currentWorld > 1 && !this.state.isProUnlocked) {
+          const victoryModal = document.getElementById('victory-modal');
+          if (victoryModal && !victoryModal.classList.contains('active')) {
+            victoryModal.classList.add('active');
+          }
+        }
+      }
+    };
+
+    updateTrialUI();
+    this.trialInterval = setInterval(updateTrialUI, 1000);
+  }
+
   // 1. Liberação do Pro após pagamento PIX
   unlockPro() {
     this.state.isProUnlocked = true;
+    if (this.trialInterval) clearInterval(this.trialInterval);
     this.save();
     this.pushToBackend();
 
     // Atualiza badges da UI
+    const trialBadge = document.getElementById('trial-badge');
+    if (trialBadge) trialBadge.style.display = 'none';
+
     const vipEl = document.getElementById('vip-badge');
     if (vipEl) vipEl.style.display = 'block';
 

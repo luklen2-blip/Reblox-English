@@ -7,7 +7,7 @@ class PixCheckout {
     this.isUnlocked = false;
     this.kiwifyUrl = 'https://pay.kiwify.com.br/DHBiqnr';
     this.beneficiary = 'LUCIANO SANT ANNA';
-    this.pixKey = 'luciano.obby@gmail.com';
+    this.pixKey = 'luklen2@gmail.com';
     this.pixCode = this.generatePixPayload({
       pixKey: this.pixKey,
       name: this.beneficiary,

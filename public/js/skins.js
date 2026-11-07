@@ -27,6 +27,9 @@ class SkinManager {
   }
 
   get isProUnlocked() {
+    if (window.gameStateManager && typeof window.gameStateManager.isVipUnlocked === 'function') {
+      return window.gameStateManager.isVipUnlocked();
+    }
     return (window.userGameState && window.userGameState.isProUnlocked) ||
            localStorage.getItem('roblox_english_obby_unlocked') === 'true' ||
            (window.pixCheckout && window.pixCheckout.isUnlocked);

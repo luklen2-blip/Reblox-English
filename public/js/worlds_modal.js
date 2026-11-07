@@ -12,6 +12,9 @@ class WorldsModalManager {
   }
 
   isVIPUnlocked() {
+    if (window.gameStateManager && typeof window.gameStateManager.isVipUnlocked === 'function') {
+      return window.gameStateManager.isVipUnlocked();
+    }
     return (window.userGameState && window.userGameState.isProUnlocked === true) ||
            (window.gameStateManager && window.gameStateManager.state && window.gameStateManager.state.isProUnlocked === true) ||
            localStorage.getItem('roblox_english_obby_unlocked') === 'true';
@@ -21,15 +24,16 @@ class WorldsModalManager {
     this.modal = this.modal || document.getElementById('worlds-modal');
     if (!this.modal) return;
 
-    // Atualiza status e botões dos Mundos 2, 3 e 4 de acordo com o Acesso Vitalício
+    // Atualiza status e botões dos Mundos 2, 3 e 4 de acordo com o Acesso Vitalício ou 1H Grátis
     const isVIP = this.isVIPUnlocked();
+    const isTrial = window.gameStateManager && typeof window.gameStateManager.isTrialActive === 'function' && window.gameStateManager.isTrialActive();
 
     const worldNames = { 2: 'Safari', 3: 'Cozinha', 4: 'Espaço' };
     [2, 3, 4].forEach(worldNum => {
       const tag = document.getElementById(`world-${worldNum}-status-tag`);
       const btn = document.getElementById(`btn-play-world-${worldNum}`);
       if (tag) {
-        tag.textContent = isVIP ? 'LIBERADO 👑' : '🔒 VIP VITALÍCIO';
+        tag.textContent = isVIP ? (isTrial ? '⏳ 1H GRÁTIS' : 'LIBERADO 👑') : '🔒 VIP VITALÍCIO';
         tag.className = isVIP ? 'world-card-tag world-tag-free' : 'world-card-tag world-tag-vip';
       }
       if (btn) {
