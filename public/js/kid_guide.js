@@ -98,11 +98,21 @@ class KidGuideManager {
     this.isActive = false;
     this.currentStep = 0;
     this.removeHighlights();
+    this.removePlayerBeacon();
     if (this.container) {
       this.container.classList.remove('active');
     }
     if (this.pointerEl) {
       this.pointerEl.style.display = 'none';
+      this.pointerEl.className = 'kid-guide-pointer';
+    }
+    if (this.exploreWatcher) {
+      clearInterval(this.exploreWatcher);
+      this.exploreWatcher = null;
+    }
+    if (this.starCollider) {
+      clearInterval(this.starCollider);
+      this.starCollider = null;
     }
     if (this.tutorialStar && this.tutorialStar.parent) {
       this.tutorialStar.parent.remove(this.tutorialStar);
@@ -110,17 +120,21 @@ class KidGuideManager {
     }
   }
 
-  speakPt(text) {
+  speakPt(text, onEnd = null) {
     if (window.audioManager && typeof window.audioManager.speakPt === 'function') {
-      window.audioManager.speakPt(text);
+      window.audioManager.speakPt(text, onEnd);
     } else if (window.audioManager && typeof window.audioManager.speak === 'function') {
-      window.audioManager.speak(text);
+      window.audioManager.speak(text, onEnd);
+    } else if (typeof onEnd === 'function') {
+      onEnd();
     }
   }
 
-  speakEn(text) {
+  speakEn(text, onEnd = null) {
     if (window.audioManager && typeof window.audioManager.speak === 'function') {
-      window.audioManager.speak(text);
+      window.audioManager.speak(text, onEnd);
+    } else if (typeof onEnd === 'function') {
+      onEnd();
     }
   }
 
@@ -130,6 +144,33 @@ class KidGuideManager {
     });
   }
 
+  createPlayerBeacon() {
+    this.removePlayerBeacon();
+    if (typeof THREE === 'undefined' || !window.player || !window.gameApp || !window.gameApp.scene) return;
+    try {
+      const ringGeo = new THREE.RingGeometry(1.4, 2.0, 32);
+      ringGeo.rotateX(-Math.PI / 2);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0x38bdf8,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0.85
+      });
+      this.playerBeacon = new THREE.Mesh(ringGeo, ringMat);
+      this.playerBeacon.position.set(window.player.position.x, 0.15, window.player.position.z);
+      window.gameApp.scene.add(this.playerBeacon);
+    } catch (e) {
+      console.warn('Beacon creation skipped:', e.message);
+    }
+  }
+
+  removePlayerBeacon() {
+    if (this.playerBeacon && this.playerBeacon.parent) {
+      this.playerBeacon.parent.remove(this.playerBeacon);
+      this.playerBeacon = null;
+    }
+  }
+
   // =========================================================================
   // ETAPA 1 — APRESENTAÇÃO
   // =========================================================================
@@ -137,22 +178,49 @@ class KidGuideManager {
     this.currentStep = 1;
     this.badgeEl.textContent = '👋';
     this.titleEl.textContent = 'Oi! Vamos brincar?';
-    this.descEl.textContent = '🎮 Vamos aprender inglês brincando!';
+    this.descEl.textContent = '👋 Oi! Vamos brincar?';
     this.dynamicArea.innerHTML = '';
-    this.actionsEl.style.display = 'flex';
-    this.actionsEl.innerHTML = `<button class="kid-guide-btn kid-guide-btn-primary" id="kid-guide-action-btn">▶️ VAMOS!</button>`;
+    this.actionsEl.style.display = 'none';
 
-    const actionBtn = document.getElementById('kid-guide-action-btn');
-    if (actionBtn) {
-      actionBtn.onclick = () => {
-        if (window.audioManager) window.audioManager.resumeContext();
-        this.showStep2();
-      };
+    if (this.pointerEl) {
+      this.pointerEl.style.display = 'none';
     }
 
+    this.speakPt('Oi! Vamos brincar?', () => {
+      setTimeout(() => {
+        if (this.currentStep !== 1) return;
+        this.titleEl.textContent = 'Vamos brincar?';
+        this.descEl.textContent = '🎮 Vamos aprender inglês brincando!';
+        this.actionsEl.style.display = 'flex';
+        this.actionsEl.innerHTML = `<button class="kid-guide-btn kid-guide-btn-primary" id="kid-guide-action-btn">▶️ VAMOS!</button>`;
+
+        const actionBtn = document.getElementById('kid-guide-action-btn');
+        if (actionBtn) {
+          actionBtn.onclick = () => {
+            if (window.audioManager) window.audioManager.resumeContext();
+            this.showStep2();
+          };
+        }
+
+        this.speakPt('Vamos aprender inglês brincando!');
+      }, 400);
+    });
+
+    // Fallback de segurança se o navegador bloquear síntese de voz antes do primeiro toque
     setTimeout(() => {
-      this.speakPt('Oi! Vamos brincar? Vamos aprender inglês brincando!');
-    }, 400);
+      if (this.currentStep === 1 && this.actionsEl.style.display === 'none') {
+        this.descEl.textContent = '🎮 Vamos aprender inglês brincando!';
+        this.actionsEl.style.display = 'flex';
+        this.actionsEl.innerHTML = `<button class="kid-guide-btn kid-guide-btn-primary" id="kid-guide-action-btn">▶️ VAMOS!</button>`;
+        const actionBtn = document.getElementById('kid-guide-action-btn');
+        if (actionBtn) {
+          actionBtn.onclick = () => {
+            if (window.audioManager) window.audioManager.resumeContext();
+            this.showStep2();
+          };
+        }
+      }
+    }, 2800);
   }
 
   // =========================================================================
@@ -166,16 +234,25 @@ class KidGuideManager {
 
     const isMobile = window.inputManager && window.inputManager.isMobile;
 
+    // Destaca o personagem com anel luminoso no chão 3D
+    this.createPlayerBeacon();
+
     if (isMobile) {
       this.descEl.textContent = '👆 Arraste o controle para andar!';
       this.dynamicArea.innerHTML = `
         <div class="kid-guide-visual-control">
           <div class="kid-control-icon-circle pulse-fast">🕹️</div>
-          <span>Arraste com o dedo na tela</span>
+          <span>Arraste com o dedo no controle da esquerda</span>
         </div>
       `;
       const joystickZone = document.getElementById('joystick-zone');
       if (joystickZone) joystickZone.classList.add('kid-highlight-target');
+
+      if (this.pointerEl) {
+        this.pointerEl.style.display = 'block';
+        this.pointerEl.className = 'kid-guide-pointer pointer-joystick';
+        this.pointerEl.innerHTML = '👇 Mexa o controle!';
+      }
     } else {
       this.descEl.textContent = 'Use as teclas com setas ou W A S D para andar!';
       this.dynamicArea.innerHTML = `
@@ -188,23 +265,31 @@ class KidGuideManager {
           </div>
         </div>
       `;
+
+      if (this.pointerEl) {
+        this.pointerEl.style.display = 'block';
+        this.pointerEl.className = 'kid-guide-pointer pointer-keys';
+        this.pointerEl.innerHTML = '👇 Use as teclas ou setas!';
+      }
     }
 
     this.actionsEl.style.display = 'none';
 
     setTimeout(() => {
       this.speakPt('Mova seu boneco!');
-    }, 300);
+    }, 200);
   }
 
   handlePlayerMove() {
     if (this.currentStep !== 2 || this.hasMoved) return;
     this.hasMoved = true;
     this.removeHighlights();
+    this.removePlayerBeacon();
+    if (this.pointerEl) this.pointerEl.style.display = 'none';
 
     this.badgeEl.textContent = '⭐';
     this.titleEl.textContent = 'Muito bem!';
-    this.descEl.textContent = 'Você aprendeu a andar!';
+    this.descEl.textContent = 'Você aprendeu a mover seu boneco!';
     this.dynamicArea.innerHTML = '<div class="kid-star-burst">🌟🌟🌟</div>';
 
     if (window.audioManager) window.audioManager.playCollect();
@@ -212,7 +297,7 @@ class KidGuideManager {
 
     setTimeout(() => {
       this.showStep3();
-    }, 1500);
+    }, 1400);
   }
 
   // =========================================================================
@@ -222,7 +307,7 @@ class KidGuideManager {
     this.currentStep = 3;
     this.hasJumped = false;
     this.badgeEl.textContent = '🦘';
-    this.titleEl.textContent = 'Agora pule!';
+    this.titleEl.textContent = 'Agora dê um pulo!';
 
     const isMobile = window.inputManager && window.inputManager.isMobile;
 
@@ -231,11 +316,17 @@ class KidGuideManager {
       this.dynamicArea.innerHTML = `
         <div class="kid-guide-visual-control">
           <div class="kid-control-icon-circle pulse-fast">🚀</div>
-          <span>Toque no botão de pulo</span>
+          <span>Toque no botão de pulo da direita</span>
         </div>
       `;
       const jumpBtn = document.getElementById('jump-btn');
       if (jumpBtn) jumpBtn.classList.add('kid-highlight-target');
+
+      if (this.pointerEl) {
+        this.pointerEl.style.display = 'block';
+        this.pointerEl.className = 'kid-guide-pointer pointer-jump';
+        this.pointerEl.innerHTML = '👇 Toque em PULE!';
+      }
     } else {
       this.descEl.textContent = 'Aperte a barra de ESPAÇO para saltar!';
       this.dynamicArea.innerHTML = `
@@ -243,31 +334,38 @@ class KidGuideManager {
           <div class="kid-key-spacebar pulse-fast">␣ ESPAÇO (PULE!)</div>
         </div>
       `;
+
+      if (this.pointerEl) {
+        this.pointerEl.style.display = 'block';
+        this.pointerEl.className = 'kid-guide-pointer pointer-keys';
+        this.pointerEl.innerHTML = '👇 Aperte a barra de ESPAÇO!';
+      }
     }
 
     this.actionsEl.style.display = 'none';
 
     setTimeout(() => {
-      this.speakPt('Agora pule!');
-    }, 300);
+      this.speakPt('Agora dê um pulo!');
+    }, 200);
   }
 
   handlePlayerJump() {
     if (this.currentStep !== 3 || this.hasJumped) return;
     this.hasJumped = true;
     this.removeHighlights();
+    if (this.pointerEl) this.pointerEl.style.display = 'none';
 
     this.badgeEl.textContent = '🎉';
-    this.titleEl.textContent = 'Você conseguiu!';
+    this.titleEl.textContent = 'Isso aí!';
     this.descEl.textContent = 'Salto perfeito!';
     this.dynamicArea.innerHTML = '<div class="kid-star-burst">🦘✨</div>';
 
     if (window.audioManager) window.audioManager.playJump();
-    this.speakPt('Você conseguiu!');
+    this.speakPt('Isso aí!');
 
     setTimeout(() => {
       this.showStep4();
-    }, 1500);
+    }, 1400);
   }
 
   // =========================================================================
@@ -275,9 +373,9 @@ class KidGuideManager {
   // =========================================================================
   showStep4() {
     this.currentStep = 4;
-    this.badgeEl.textContent = '🔎';
-    this.titleEl.textContent = 'Vamos explorar!';
-    this.descEl.textContent = 'Ande para frente pelo caminho colorido!';
+    this.badgeEl.textContent = '🔍';
+    this.titleEl.textContent = 'Vamos explorar a ilha!';
+    this.descEl.textContent = 'Siga a seta pelo caminho colorido!';
     this.dynamicArea.innerHTML = `
       <div class="kid-guide-explore-arrow">
         <span class="explore-animated-arrow">➡️ 🌈 ➡️</span>
@@ -285,6 +383,12 @@ class KidGuideManager {
     `;
     this.actionsEl.style.display = 'flex';
     this.actionsEl.innerHTML = `<button class="kid-guide-btn kid-guide-btn-primary" id="kid-guide-explore-btn">▶️ ANDAR EM FRENTE</button>`;
+
+    if (this.pointerEl) {
+      this.pointerEl.style.display = 'block';
+      this.pointerEl.className = 'kid-guide-pointer pointer-forward';
+      this.pointerEl.innerHTML = '👉 SIGA EM FRENTE! 🌈';
+    }
 
     const exploreBtn = document.getElementById('kid-guide-explore-btn');
     if (exploreBtn) {
@@ -294,33 +398,44 @@ class KidGuideManager {
     }
 
     setTimeout(() => {
-      this.speakPt('Vamos explorar! Siga em frente!');
-    }, 300);
+      this.speakPt('Vamos explorar a ilha! Siga a seta!');
+    }, 200);
 
     // Avança se o jogador caminhar para frente no mapa
+    if (this.exploreWatcher) clearInterval(this.exploreWatcher);
     this.exploreWatcher = setInterval(() => {
       if (window.player && window.player.position.z < -10) {
         clearInterval(this.exploreWatcher);
+        this.exploreWatcher = null;
         this.showStep5();
       }
-    }, 400);
+    }, 300);
   }
 
   // =========================================================================
   // ETAPA 5 — PRIMEIRA COLETA (ESTRELA)
   // =========================================================================
   showStep5() {
-    if (this.exploreWatcher) clearInterval(this.exploreWatcher);
+    if (this.exploreWatcher) {
+      clearInterval(this.exploreWatcher);
+      this.exploreWatcher = null;
+    }
     this.currentStep = 5;
     this.badgeEl.textContent = '⭐';
-    this.titleEl.textContent = 'Pegue a estrela!';
-    this.descEl.textContent = 'Toque na estrela dourada brilhante!';
+    this.titleEl.textContent = 'Chegue perto para pegar!';
+    this.descEl.textContent = 'Toque na estrela dourada que brilha!';
     this.dynamicArea.innerHTML = `
       <div class="kid-guide-star-preview pulse-fast">
         <span style="font-size: 38px;">⭐</span>
         <span style="font-weight: 800; color: #fbbf24;">ESTRELA DOURADA</span>
       </div>
     `;
+
+    if (this.pointerEl) {
+      this.pointerEl.style.display = 'block';
+      this.pointerEl.className = 'kid-guide-pointer pointer-star';
+      this.pointerEl.innerHTML = '⭐ PEGUE A ESTRELA!';
+    }
 
     this.spawnTutorialStar();
 
@@ -334,8 +449,8 @@ class KidGuideManager {
     }
 
     setTimeout(() => {
-      this.speakPt('Pegue a estrela!');
-    }, 300);
+      this.speakPt('Chegue perto para pegar!');
+    }, 200);
   }
 
   spawnTutorialStar() {
@@ -359,41 +474,48 @@ class KidGuideManager {
     this.tutorialStar = starGroup;
 
     // Checagem de colisão contínua
+    if (this.starCollider) clearInterval(this.starCollider);
     this.starCollider = setInterval(() => {
       if (!this.tutorialStar || !window.player) {
         clearInterval(this.starCollider);
+        this.starCollider = null;
         return;
       }
       const dist = window.player.position.distanceTo(this.tutorialStar.position);
       if (dist < 2.5) {
         clearInterval(this.starCollider);
+        this.starCollider = null;
         this.handleStarCollected();
       }
     }, 100);
   }
 
   handleStarCollected() {
-    if (this.starCollider) clearInterval(this.starCollider);
+    if (this.starCollider) {
+      clearInterval(this.starCollider);
+      this.starCollider = null;
+    }
     if (this.tutorialStar && this.tutorialStar.parent) {
       this.tutorialStar.parent.remove(this.tutorialStar);
       this.tutorialStar = null;
     }
+    if (this.pointerEl) this.pointerEl.style.display = 'none';
 
     if (window.confetti) {
       window.confetti({ particleCount: 35, spread: 60, origin: { y: 0.6 } });
     }
     if (window.audioManager) window.audioManager.playCollect();
 
-    this.badgeEl.textContent = '🎉';
-    this.titleEl.textContent = 'Pegou!';
-    this.descEl.textContent = 'Você coletou sua primeira estrela!';
+    this.badgeEl.textContent = '🌟';
+    this.titleEl.textContent = 'Você conseguiu!';
+    this.descEl.textContent = 'Primeira estrela coletada com sucesso!';
     this.dynamicArea.innerHTML = '<div class="kid-star-burst">⭐ ONE! ⭐</div>';
 
-    this.speakPt('Muito bem! Pegou!');
+    this.speakPt('Você conseguiu!');
 
     setTimeout(() => {
       this.showStep6();
-    }, 1500);
+    }, 1400);
   }
 
   // =========================================================================
@@ -402,8 +524,8 @@ class KidGuideManager {
   showStep6() {
     this.currentStep = 6;
     this.badgeEl.textContent = '🍎';
-    this.titleEl.textContent = 'Escute e Olhe!';
-    this.descEl.textContent = 'Vamos aprender sua primeira palavra em inglês:';
+    this.titleEl.textContent = 'Ouça com atenção!';
+    this.descEl.textContent = 'Maçã em inglês se diz APPLE!';
     this.dynamicArea.innerHTML = `
       <div class="kid-word-spotlight">
         <div class="kid-spotlight-icon">🍎</div>
@@ -411,6 +533,8 @@ class KidGuideManager {
         <button class="kid-listen-btn" id="kid-speak-word-btn">🔊 Ouvir "APPLE"</button>
       </div>
     `;
+
+    if (this.pointerEl) this.pointerEl.style.display = 'none';
 
     this.actionsEl.style.display = 'flex';
     this.actionsEl.innerHTML = `<button class="kid-guide-btn kid-guide-btn-primary" id="kid-guide-next-btn">▶️ CONTINUAR</button>`;
@@ -430,14 +554,16 @@ class KidGuideManager {
     }
 
     setTimeout(() => {
-      this.speakPt('Escute!');
-      setTimeout(() => {
-        this.speakEn('Apple');
+      this.speakPt('Ouça com atenção!', () => {
         setTimeout(() => {
-          this.speakPt('Olhe! Maçã em inglês é Apple!');
-        }, 1200);
-      }, 900);
-    }, 300);
+          this.speakEn('Apple', () => {
+            setTimeout(() => {
+              this.speakPt('Maçã em inglês é Apple!');
+            }, 300);
+          });
+        }, 300);
+      });
+    }, 200);
   }
 
   // =========================================================================
@@ -446,8 +572,8 @@ class KidGuideManager {
   showStep7() {
     this.currentStep = 7;
     this.badgeEl.textContent = '🎯';
-    this.titleEl.textContent = 'Encontre!';
-    this.descEl.textContent = 'Toque na fruta: qual é APPLE?';
+    this.titleEl.textContent = 'Qual é APPLE?';
+    this.descEl.textContent = 'Toque na fruta que se chama APPLE:';
     this.dynamicArea.innerHTML = `
       <div class="kid-quiz-cards-row">
         <button class="kid-quiz-choice-card" data-correct="true">
@@ -466,11 +592,12 @@ class KidGuideManager {
       <div id="kid-quiz-feedback" class="kid-feedback-text"></div>
     `;
 
+    if (this.pointerEl) this.pointerEl.style.display = 'none';
     this.actionsEl.style.display = 'none';
 
     setTimeout(() => {
-      this.speakPt('Encontre! Qual é Apple?');
-    }, 300);
+      this.speakPt('Qual é Apple?');
+    }, 200);
 
     const cards = this.dynamicArea.querySelectorAll('.kid-quiz-choice-card');
     cards.forEach(card => {
@@ -487,7 +614,7 @@ class KidGuideManager {
 
           setTimeout(() => {
             this.showStep8();
-          }, 1500);
+          }, 1400);
         } else {
           card.classList.add('card-shake');
           setTimeout(() => card.classList.remove('card-shake'), 600);
@@ -508,7 +635,7 @@ class KidGuideManager {
     this.currentStep = 8;
     this.badgeEl.textContent = '🎤';
     this.titleEl.textContent = 'Agora é sua vez!';
-    this.descEl.textContent = 'Escute a palavra e fale no microfone!';
+    this.descEl.textContent = 'Aperte o microfone e diga APPLE!';
     this.dynamicArea.innerHTML = `
       <div class="kid-mic-hero-box">
         <div class="kid-mic-big-circle pulse-fast">🎤</div>
@@ -525,14 +652,12 @@ class KidGuideManager {
       </div>
     `;
 
+    if (this.pointerEl) this.pointerEl.style.display = 'none';
     this.actionsEl.style.display = 'none';
 
     setTimeout(() => {
-      this.speakPt('Agora é sua vez! Escute e fale!');
-      setTimeout(() => {
-        this.speakEn('Apple');
-      }, 1400);
-    }, 300);
+      this.speakPt('Agora aperte o microfone e diga: Apple!');
+    }, 200);
 
     const triggerBtn = document.getElementById('kid-mic-trigger-btn');
     const skipBtn = document.getElementById('kid-mic-skip-btn');
@@ -565,7 +690,7 @@ class KidGuideManager {
         `;
       }
 
-      this.speakPt('Acertou! Você ganhou vinte e cinco XP e dez moedas! Parabéns!');
+      this.speakPt('Parabéns! Você ganhou suas primeiras moedas!');
 
       // Salva conclusão do tutorial
       this.completed = true;
@@ -577,7 +702,7 @@ class KidGuideManager {
 
       setTimeout(() => {
         this.showCompletedScreen();
-      }, 2500);
+      }, 2400);
     };
 
     if (triggerBtn) {

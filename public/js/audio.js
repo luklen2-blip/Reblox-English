@@ -65,8 +65,15 @@ class AudioManager {
   }
 
   // Síntese de voz em inglês nativo (en-US)
-  speak(text, rate = 0.9, pitch = 1.15) {
-    if (this.muted || !this.speechSynth) return;
+  speak(text, onEnd = null, rate = 0.9, pitch = 1.15) {
+    if (typeof onEnd === 'number') {
+      rate = onEnd;
+      onEnd = null;
+    }
+    if (this.muted || !this.speechSynth) {
+      if (typeof onEnd === 'function') onEnd();
+      return;
+    }
 
     this.speechSynth.cancel(); // cancela falas pendentes para não acumular atraso
 
@@ -84,9 +91,11 @@ class AudioManager {
     // Watchdog anti-stall para Safari / Chrome móvel
     utterance.onend = () => {
       clearTimeout(this.speechWatchdog);
+      if (typeof onEnd === 'function') onEnd();
     };
     utterance.onerror = () => {
       clearTimeout(this.speechWatchdog);
+      if (typeof onEnd === 'function') onEnd();
     };
 
     clearTimeout(this.speechWatchdog);
@@ -100,8 +109,15 @@ class AudioManager {
   }
 
   // Síntese de voz em português brasileiro para orientações e guia infantil
-  speakPt(text, rate = 0.95, pitch = 1.15) {
-    if (this.muted || !this.speechSynth) return;
+  speakPt(text, onEnd = null, rate = 0.95, pitch = 1.15) {
+    if (typeof onEnd === 'number') {
+      rate = onEnd;
+      onEnd = null;
+    }
+    if (this.muted || !this.speechSynth) {
+      if (typeof onEnd === 'function') onEnd();
+      return;
+    }
 
     this.speechSynth.cancel();
 
@@ -115,8 +131,14 @@ class AudioManager {
 
     this.showWordBubble(text);
 
-    utterance.onend = () => { clearTimeout(this.speechWatchdog); };
-    utterance.onerror = () => { clearTimeout(this.speechWatchdog); };
+    utterance.onend = () => {
+      clearTimeout(this.speechWatchdog);
+      if (typeof onEnd === 'function') onEnd();
+    };
+    utterance.onerror = () => {
+      clearTimeout(this.speechWatchdog);
+      if (typeof onEnd === 'function') onEnd();
+    };
 
     clearTimeout(this.speechWatchdog);
     this.speechWatchdog = setTimeout(() => {

@@ -2480,7 +2480,54 @@ canvas {
   margin-top: 1px;
 }
 
+/* Indicador / Seta Animada do Guia Infantil */
+.kid-guide-pointer {
+  position: fixed;
+  z-index: 10001;
+  pointer-events: none;
+  font-size: 24px;
+  background: rgba(15, 23, 42, 0.92);
+  color: #fde047;
+  border: 2px solid #38bdf8;
+  border-radius: 18px;
+  padding: 8px 16px;
+  font-weight: 800;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(56, 189, 248, 0.5);
+  animation: kidPointerPulse 0.9s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
+  display: none;
+  text-align: center;
+  white-space: nowrap;
+}
 
+.kid-guide-pointer.pointer-joystick {
+  left: 60px;
+  bottom: 155px;
+}
 
+.kid-guide-pointer.pointer-jump {
+  right: 60px;
+  bottom: 155px;
+}
 
+.kid-guide-pointer.pointer-keys {
+  left: 50%;
+  top: 310px;
+  transform: translateX(-50%);
+}
 
+.kid-guide-pointer.pointer-star {
+  left: 50%;
+  top: 48%;
+  transform: translate(-50%, -50%);
+}
+
+.kid-guide-pointer.pointer-forward {
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes kidPointerPulse {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-10px) scale(1.08); }
+}

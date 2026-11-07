@@ -531,6 +531,23 @@ async function runTests() {
     const updatedHtmlRes = await request({ hostname: 'localhost', port: testPort, path: '/' });
     assert(updatedHtmlRes.data.includes('/js/kid_guide.js'), 'HTML deve importar /js/kid_guide.js');
     assert(updatedHtmlRes.data.includes('id="kid-guide-btn"'), 'HTML deve conter botão do guia no HUD (kid-guide-btn)');
+
+    console.log('\n📋 Teste 17: Auditoria Meticulosa e Refinamento do Guia Infantil');
+    assert(kidGuideJsRes.data.includes('createPlayerBeacon'), 'kid_guide.js deve criar anel luminoso 3D ao redor do personagem');
+    assert(kidGuideJsRes.data.includes('removePlayerBeacon'), 'kid_guide.js deve remover o anel luminoso ao mover');
+    assert(kidGuideJsRes.data.includes('pointer-joystick'), 'kid_guide.js deve apontar para joystick no mobile');
+    assert(kidGuideJsRes.data.includes('pointer-jump'), 'kid_guide.js deve apontar para botão de pulo no mobile');
+    assert(kidGuideJsRes.data.includes('pointer-star'), 'kid_guide.js deve apontar para estrela dourada');
+
+    assert(updatedAudioRes.data.includes('onEnd = null'), 'audio.js deve suportar callback onEnd para encadeamento de áudio');
+
+    const auditCssRes = await request({ hostname: 'localhost', port: testPort, path: '/css/style.css' });
+    assert(auditCssRes.data.includes('.kid-guide-pointer'), 'CSS deve definir classe .kid-guide-pointer');
+    assert(auditCssRes.data.includes('kidPointerPulse'), 'CSS deve definir animação kidPointerPulse');
+    assert(auditCssRes.data.includes('.parents-guide-section'), 'CSS deve estilizar seção pedagógica para pais');
+
+    assert(updatedHtmlRes.data.includes('class="parents-guide-section"'), 'HTML deve conter a seção do passo a passo para pais e crianças');
+    assert(updatedHtmlRes.data.includes('class="step-guide-grid"'), 'HTML deve conter o grid de passos ilustrados');
   } catch (err) {
     console.error('❌ Erro durante a execução dos testes:', err);
     process.exitCode = 1;
